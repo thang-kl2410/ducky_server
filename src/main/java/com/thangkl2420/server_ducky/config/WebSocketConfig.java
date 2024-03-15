@@ -24,8 +24,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/gs-guide-websocket");
+        //registry.addEndpoint("/ws").setAllowedOrigins("*");
+        registry.addEndpoint("/ws");
     }
+
 //    @Override
 //    public boolean configureMessageConverters(List<MessageConverter> messageConverters) {
 //        DefaultContentTypeResolver resolver = new DefaultContentTypeResolver();

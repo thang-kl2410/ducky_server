@@ -11,13 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "resource")
-public class ResourceFile {
+@Table(name = "notification")
+public class Notification {
     @Id
     @GeneratedValue
     private Integer id;
-    private String fileName;
-    private String fileType;
-    private byte[] fileData;
-    private String filePath;
+    private String content;
+    private String resource;
+    private int timestamp;
 }

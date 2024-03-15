@@ -1,11 +1,13 @@
 package com.thangkl2420.server_ducky.controller;
 
+import com.thangkl2420.server_ducky.entity.Conversation;
 import com.thangkl2420.server_ducky.entity.Message;
 import com.thangkl2420.server_ducky.service.ConversationService;
 import com.thangkl2420.server_ducky.service.MessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,11 +21,22 @@ import org.springframework.web.util.HtmlUtils;
 public class MessageController {
     private final ConversationService conversationService;
     private final MessageService messageService;
-    @MessageMapping("/hello")
-    @SendTo("/topic/greetings")
-    public String greeting(Message message) throws Exception {
-        Thread.sleep(1000); // simulated delay
-        return HtmlUtils.htmlEscape(message.getContent());
+
+    @GetMapping("/get-conversation-by-ids")
+    public ResponseEntity<Conversation> getConversationByIds(
+            @Param(value = "senderId") Integer senderId, @Param(value = "receiverId") Integer receiverId
+    ){
+        if(senderId == null || receiverId == null){
+            return null;
+        }
+        return ResponseEntity.ok(conversationService.getConversationByIds(senderId, receiverId));
+    }
+
+    @SendTo("/topic/{id}/greetings")
+    @MessageMapping("/hello/{id}")
+    public Message greeting(@DestinationVariable Integer id, Message message) throws Exception {
+        Thread.sleep(500);
+        return message;
     }
 
     @GetMapping("/video-call/{idUser}/{chanelId}/{token}/")

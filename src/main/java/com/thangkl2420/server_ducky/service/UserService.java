@@ -74,6 +74,7 @@ public class UserService {
         user.setAvatar(request.getAvatar());
         user.setBackground(request.getBackground());
         user.setDescription(request.getDescription());
+        user.setAddress(request.getAddress());
         repository.save(user);
     }
 
