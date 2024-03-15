@@ -12,9 +12,9 @@ import java.io.Serializable;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserConversationId implements Serializable {
-    @Column(name = "conversation_id")
-    private Integer conversationId;
+public class UserNotificationId implements Serializable {
+    @Column(name = "notification_id")
+    private Integer notificationId;
     @Column(name = "user_id")
     private Integer userId;
 }

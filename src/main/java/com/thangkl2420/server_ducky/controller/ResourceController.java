@@ -30,19 +30,23 @@ public class ResourceController {
         try {
             byte[] fileBytes = file.getBytes();
             ResourceFile resourceFile = new ResourceFile();
-            String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+            String fileName = UUID.randomUUID().toString() + "_" + sanitizeFileName(file.getOriginalFilename());
             resourceFile.setFileName(fileName);
             resourceFile.setFileType(file.getContentType());
             String filePath = uploadDir + fileName;
             resourceFile.setFilePath(filePath);
             repository.save(resourceFile);
             Files.write(Paths.get(filePath), fileBytes);
-            String fileUrl = "/api/v1/resources/" + resourceFile.getId();
+            //String fileUrl = "/api/v1/resources/" + resourceFile.getId();
+            String fileUrl = resourceFile.getId().toString();
             return ResponseEntity.ok(fileUrl);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading file.");
         }
+    }
 
+    private String sanitizeFileName(String fileName) {
+        return fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
     }
 
     @GetMapping("/{id}/image")

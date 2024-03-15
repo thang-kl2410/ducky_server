@@ -26,6 +26,10 @@ public class RescueCall {
     double timestamp;
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "rescue_id")
+    public Rescue rescue;
+
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rescueState_id")
     public RescueState rescueState;
 }

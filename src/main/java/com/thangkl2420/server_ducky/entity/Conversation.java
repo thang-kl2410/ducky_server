@@ -18,7 +18,6 @@ public class Conversation {
     @Id
     @GeneratedValue
     private Integer id;
-    @Column(unique = true)
     private String conversationName;
 
     //@JsonIgnore
