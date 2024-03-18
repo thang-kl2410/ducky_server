@@ -11,4 +11,5 @@ import java.util.List;
 public interface UserConversationRepository extends JpaRepository<UserConversation, UserConversationId> {
     @Query(value = "select uc.conversation from UserConversation uc where uc.id.userId = :id ")
     List<Conversation> findAllByUser(Integer id);
+
 }

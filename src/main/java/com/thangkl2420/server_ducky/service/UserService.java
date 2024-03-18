@@ -20,7 +20,6 @@ import static java.util.Objects.isNull;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final PasswordEncoder passwordEncoder;
     private final UserRepository repository;
     private final UserStateRepository userStateRepository;
@@ -38,10 +37,6 @@ public class UserService {
 
     public List<User> getAllUser(Principal connectedUser){
         List<User> users = repository.findAll();
-//        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-//        return users.stream()
-//                .filter(u -> !u.getId().equals(user.getId()))
-//                .collect(Collectors.toList());
         return users;
     }
 
@@ -84,7 +79,7 @@ public class UserService {
     }
 
     public List<User> searchByName(String keyword){
-        List<User> users = repository.findByFirstnameOrLastnameContaining(keyword);
+        List<User> users = repository.findByFirstnameOrLastnameContaining(keyword.toLowerCase());
         return  users;
     }
 
@@ -99,7 +94,7 @@ public class UserService {
     }
 
     private double calculateDistance(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371; // Bán kính trái đất trong km
+        final int R = 6371;
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +

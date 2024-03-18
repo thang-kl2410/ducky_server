@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class FCMService {
+public class NotificationService {
     private final FirebaseMessaging firebaseMessaging;
     private final UserRepository repository;
 
@@ -54,31 +54,22 @@ public class FCMService {
             e.printStackTrace();
         }
     }
-//    public void sendNotificationWithinRadius(double latitude, double longitude, double radius, String title, String message) {
-//        // Lấy danh sách người dùng trong phạm vi 10km từ vị trí đã xác định
-//        List<User> usersWithinRadius = userRepository.findUsersWithinRadius(latitude, longitude, radius);
-//
-//        if (usersWithinRadius.isEmpty()) {
-//            return; // Không có người dùng trong phạm vi 10km
-//        }
-//
-//        // Lấy danh sách device token từ danh sách người dùng
-//        List<String> deviceTokens = new ArrayList<>();
-//        for (User user : usersWithinRadius) {
-//            deviceTokens.add(user.getDeviceToken());
-//        }
-//
-//        try {
-//            // Gửi thông báo FCM tới danh sách device token
-//            MulticastMessage multicastMessage = MulticastMessage.builder()
-//                    .setNotification(Notification.builder().setTitle(title).setBody(message).build())
-//                    .addAllTokens(deviceTokens)
-//                    .build();
-//
-//            FirebaseMessaging.getInstance().sendMulticast(multicastMessage);
-//        } catch (FirebaseMessagingException e) {
-//            // Xử lý nếu gặp lỗi khi gửi thông báo
-//            e.printStackTrace();
-//        }
-//    }
+
+    public void sendFCMById(Integer id) throws FirebaseMessagingException {
+        String tokenDevice = repository.findDeviceToken(id).orElseThrow();
+        if(tokenDevice != null || !tokenDevice.isEmpty()){
+            Message message = Message.builder()
+                    .putData("title", "title")
+                    .putData("body", "body")
+                    .setNotification(
+                            Notification.builder()
+                                    .setTitle("title")
+                                    .setBody("body")
+                                    .build()
+                    )
+                    .setToken(tokenDevice)
+                    .build();
+            firebaseMessaging.send(message);
+        }
+    }
 }

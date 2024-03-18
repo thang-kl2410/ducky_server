@@ -1,16 +1,23 @@
 package com.thangkl2420.server_ducky.service;
 
+import com.thangkl2420.server_ducky.dto.ConversationDto;
 import com.thangkl2420.server_ducky.dto.UserConversationId;
 import com.thangkl2420.server_ducky.entity.Conversation;
 import com.thangkl2420.server_ducky.entity.Message;
+import com.thangkl2420.server_ducky.entity.User;
 import com.thangkl2420.server_ducky.entity.UserConversation;
 import com.thangkl2420.server_ducky.repository.ConversationRepository;
 import com.thangkl2420.server_ducky.repository.MessageRepository;
 import com.thangkl2420.server_ducky.repository.UserConversationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -19,9 +26,21 @@ public class ConversationService {
     private final UserConversationRepository userConversationRepository;
     private final MessageRepository messageRepository;
 
-    public List<Conversation> getAllConversation(Integer id){
-        List<Conversation> conversations = userConversationRepository.findAllByUser(id);
-        return  conversations;
+    public List<ConversationDto> getAllConversation(Principal connectedUser){
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        List<Conversation> conversations = userConversationRepository.findAllByUser(user.getId());
+        List<ConversationDto> cvs = conversations.stream()
+                .map(conversation -> {
+                    User otherUser = repository.findUserInConversation(conversation.getId(), user.getId()).orElse(null);
+                    if (otherUser == null) {
+                        return null;
+                    }
+                    Message lastMessage = repository.findLastMessageInConversation(conversation.getId()).orElse(null);
+                    return new ConversationDto(conversation.getId(), otherUser, lastMessage);
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        return cvs;
     }
 
     public List<Message> getMessageByIdConversation(Integer id){
@@ -42,6 +61,14 @@ public class ConversationService {
             return conversations.get(0);
         }
     }
+
+    public void sendMessage(Integer id, Message message){
+        Conversation conversation = repository.findById(id).orElseThrow();
+        message.setConversation(conversation);
+        messageRepository.save(message);
+    }
+
+
 
 
 

@@ -17,11 +17,10 @@ public class Message {
     @Id
     @GeneratedValue
     private Integer id;
-    private Integer receiverId;
     private Integer senderId;
     private String content;
-    private double timestamp;
-    private double isDeleted;
+    private Long timestamp;
+    private int isDeleted;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "messageType_id")

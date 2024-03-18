@@ -1,5 +1,6 @@
 package com.thangkl2420.server_ducky.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,7 +21,7 @@ public class Conversation {
     private Integer id;
     private String conversationName;
 
-    //@JsonIgnore
+    @JsonIgnore
     @OneToMany(mappedBy = "conversation")
     private List<Message> messages;
 }

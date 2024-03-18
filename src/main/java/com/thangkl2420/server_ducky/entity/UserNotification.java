@@ -17,6 +17,7 @@ import lombok.NoArgsConstructor;
 public class UserNotification {
     @EmbeddedId
     private UserNotificationId id;
+    private Integer isSeen;
 
     @ManyToOne
     @JoinColumn(name = "notification_id", referencedColumnName = "id", insertable = false, updatable = false)

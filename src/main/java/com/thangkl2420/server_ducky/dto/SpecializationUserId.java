@@ -13,8 +13,10 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SpecializationUserId implements Serializable {
-    @Column(name = "specialization_id")
-    private Integer specializationId;
+//    @Column(name = "specialization_id")
+//    private Integer specializationId;
+    @Column(name = "rescueType_id")
+    private Integer rescueTypeId;
     @Column(name = "user_id")
     private Integer userId;
 }

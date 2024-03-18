@@ -13,7 +13,8 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.HtmlUtils;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/chat")
@@ -35,8 +36,14 @@ public class MessageController {
     @SendTo("/topic/{id}/greetings")
     @MessageMapping("/hello/{id}")
     public Message greeting(@DestinationVariable Integer id, Message message) throws Exception {
+        conversationService.sendMessage(id, message);
         Thread.sleep(500);
         return message;
+    }
+
+    @GetMapping("/conversation/id")
+    public ResponseEntity<List<Message>> getMessagesByIdConversation(@Param(value = "id") Integer id){
+        return ResponseEntity.ok(conversationService.getMessageByIdConversation(id));
     }
 
     @GetMapping("/video-call/{idUser}/{chanelId}/{token}/")
