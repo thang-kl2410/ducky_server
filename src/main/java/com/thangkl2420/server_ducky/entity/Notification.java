@@ -19,4 +19,5 @@ public class Notification {
     private String content;
     private String resource;
     private int timestamp;
+    private boolean haveIssued;
 }

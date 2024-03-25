@@ -49,6 +49,7 @@ public class AuthenticationController {
   ) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     logoutService.logout(request, response,authentication);
+    userService.saveDeviceToken("", connectedUser);
     userService.updateState(2, connectedUser);
     return ResponseEntity.ok().build();
   }

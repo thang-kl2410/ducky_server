@@ -55,16 +55,17 @@ public class NotificationService {
         }
     }
 
-    public void sendFCMById(Integer id) throws FirebaseMessagingException {
+    public void sendFCMById(Integer id, String title, String body, Integer senderId) throws FirebaseMessagingException {
         String tokenDevice = repository.findDeviceToken(id).orElseThrow();
-        if(tokenDevice != null || !tokenDevice.isEmpty()){
+        if(tokenDevice != null && !tokenDevice.isEmpty()){
             Message message = Message.builder()
-                    .putData("title", "title")
-                    .putData("body", "body")
+                    .putData("title", title)
+                    .putData("body", body)
+                    .putData("senderId", String.valueOf(senderId))
                     .setNotification(
                             Notification.builder()
-                                    .setTitle("title")
-                                    .setBody("body")
+                                    .setTitle(title)
+                                    .setBody(body)
                                     .build()
                     )
                     .setToken(tokenDevice)

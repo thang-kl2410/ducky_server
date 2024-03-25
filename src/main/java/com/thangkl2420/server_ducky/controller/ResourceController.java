@@ -26,7 +26,7 @@ public class ResourceController {
     private static final String uploadDir = "D:/ducky_resources/images";
 
     @PostMapping("/upload")
-    public ResponseEntity<String> handleFileUpload(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<ResourceFile> handleFileUpload(@RequestParam("file") MultipartFile file) {
         try {
             byte[] fileBytes = file.getBytes();
             ResourceFile resourceFile = new ResourceFile();
@@ -38,10 +38,11 @@ public class ResourceController {
             repository.save(resourceFile);
             Files.write(Paths.get(filePath), fileBytes);
             //String fileUrl = "/api/v1/resources/" + resourceFile.getId();
-            String fileUrl = resourceFile.getId().toString();
-            return ResponseEntity.ok(fileUrl);
+            //String fileUrl = resourceFile.getId().toString();
+            return ResponseEntity.ok(resourceFile);
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading file.");
+            //return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading file.");
+            return ResponseEntity.notFound().build();
         }
     }
 
@@ -100,4 +101,24 @@ public class ResourceController {
             return ResponseEntity.notFound().build();
         }
     }
+
+//    @GetMapping("/{filename}")
+//    public ResponseEntity<Resource> getByFileName(@PathVariable Integer id) {
+//        Optional<ResourceFile> optionalImage = repository.findById(id);
+//
+//        if (optionalImage.isPresent()) {
+//            ResourceFile image = optionalImage.get();
+//            try {
+//                UrlResource resource = new UrlResource(Paths.get(image.getFilePath()).toUri());
+//
+//                return ResponseEntity.ok()
+//                        .contentType(MediaType.IMAGE_JPEG)
+//                        .body(resource);
+//            } catch (IOException e) {
+//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+//            }
+//        } else {
+//            return ResponseEntity.notFound().build();
+//        }
+//    }
 }

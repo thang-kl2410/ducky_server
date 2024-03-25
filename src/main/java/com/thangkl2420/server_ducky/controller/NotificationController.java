@@ -32,7 +32,7 @@ public class NotificationController {
     @PostMapping("/send-by-id")
     public String sendNotificationById(@Param(value = "id") Integer id) {
         try {
-            fcmService.sendFCMById(id);
+            fcmService.sendFCMById(id, "test", "test", null);
             return "Notification sent successfully!";
         } catch (FirebaseMessagingException e) {
             e.printStackTrace();

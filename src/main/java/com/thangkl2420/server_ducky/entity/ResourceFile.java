@@ -1,5 +1,6 @@
 package com.thangkl2420.server_ducky.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,4 +21,9 @@ public class ResourceFile {
     private String fileType;
     private byte[] fileData;
     private String filePath;
+
+    @JsonIgnore
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    private Post post;
 }

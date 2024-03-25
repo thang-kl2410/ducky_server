@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -35,9 +36,10 @@ public class MessageController {
 
     @SendTo("/topic/{id}/greetings")
     @MessageMapping("/hello/{id}")
-    public Message greeting(@DestinationVariable Integer id, Message message) throws Exception {
-        conversationService.sendMessage(id, message);
+    public Message message(@DestinationVariable Integer id, Message message, Principal connectedUser) throws Exception {
+        conversationService.sendMessage(id, message, connectedUser);
         Thread.sleep(500);
+
         return message;
     }
 
@@ -51,25 +53,4 @@ public class MessageController {
         messageService.joinVideoCallChanel(idUser, token, chanelId);
         return ResponseEntity.ok().build();
     }
-
-//    @MessageMapping("/chat")
-//    public void processMessage(@Payload ChatMessage chatMessage) {
-//        ChatMessage savedMsg = chatMessageService.save(chatMessage);
-//        messagingTemplate.convertAndSendToUser(
-//                chatMessage.getRecipientId(), "/queue/messages",
-//                new ChatNotification(
-//                        savedMsg.getId(),
-//                        savedMsg.getSenderId(),
-//                        savedMsg.getRecipientId(),
-//                        savedMsg.getContent()
-//                )
-//        );
-//    }
-//
-//    @GetMapping("/messages/{senderId}/{recipientId}")
-//    public ResponseEntity<List<ChatMessage>> findChatMessages(@PathVariable String senderId,
-//                                                              @PathVariable String recipientId) {
-//        return ResponseEntity
-//                .ok(chatMessageService.findChatMessages(senderId, recipientId));
-//    }
 }

@@ -1,5 +1,6 @@
 package com.thangkl2420.server_ducky.service;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.thangkl2420.server_ducky.dto.ConversationDto;
 import com.thangkl2420.server_ducky.dto.UserConversationId;
 import com.thangkl2420.server_ducky.entity.Conversation;
@@ -14,9 +15,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +24,8 @@ public class ConversationService {
     private final ConversationRepository repository;
     private final UserConversationRepository userConversationRepository;
     private final MessageRepository messageRepository;
+
+    private final NotificationService notificationService;
 
     public List<ConversationDto> getAllConversation(Principal connectedUser){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
@@ -36,10 +37,17 @@ public class ConversationService {
                         return null;
                     }
                     Message lastMessage = repository.findLastMessageInConversation(conversation.getId()).orElse(null);
-                    return new ConversationDto(conversation.getId(), otherUser, lastMessage);
+                    if(lastMessage != null){
+                        return new ConversationDto(conversation.getId(), otherUser, lastMessage);
+                    } else {
+                        Message m = new Message();
+                        m.setTimestamp(Long.valueOf(0));
+                        return new ConversationDto(conversation.getId(), otherUser, m);
+                    }
                 })
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+        Collections.sort(cvs, Comparator.comparing(c -> c.getLastMessage().getTimestamp()));
         return cvs;
     }
 
@@ -62,54 +70,24 @@ public class ConversationService {
         }
     }
 
-    public void sendMessage(Integer id, Message message){
+    public void sendMessage(Integer id, Message message, Principal connectedUser){
         Conversation conversation = repository.findById(id).orElseThrow();
         message.setConversation(conversation);
         messageRepository.save(message);
+
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        User otherUser = repository.findUserInConversation(conversation.getId(), user.getId()).orElse(null);
+        try {
+            if (otherUser != null) {
+                notificationService.sendFCMById(
+                        otherUser.getId(),
+                        user.getLastname(),
+                        message.getMessageType().getId() == 1 ? message.getContent() : "Hình ảnh",
+                        user.getId()
+                );
+            }
+        } catch (FirebaseMessagingException e) {
+            System.out.println(e);
+        }
     }
-
-
-
-
-
-//    public Optional<String> getChatRoomId(
-//            String senderId,
-//            String recipientId,
-//            boolean createNewRoomIfNotExists
-//    ) {
-//        return chatRoomRepository
-//                .findBySenderIdAndRecipientId(senderId, recipientId)
-//                .map(ChatRoom::getChatId)
-//                .or(() -> {
-//                    if(createNewRoomIfNotExists) {
-//                        var chatId = createChatId(senderId, recipientId);
-//                        return Optional.of(chatId);
-//                    }
-//
-//                    return  Optional.empty();
-//                });
-//    }
-//
-//    private String createChatId(String senderId, String recipientId) {
-//        var chatId = String.format("%s_%s", senderId, recipientId);
-//
-//        ChatRoom senderRecipient = ChatRoom
-//                .builder()
-//                .chatId(chatId)
-//                .senderId(senderId)
-//                .recipientId(recipientId)
-//                .build();
-//
-//        ChatRoom recipientSender = ChatRoom
-//                .builder()
-//                .chatId(chatId)
-//                .senderId(recipientId)
-//                .recipientId(senderId)
-//                .build();
-//
-//        chatRoomRepository.save(senderRecipient);
-//        chatRoomRepository.save(recipientSender);
-//
-//        return chatId;
-//    }
 }

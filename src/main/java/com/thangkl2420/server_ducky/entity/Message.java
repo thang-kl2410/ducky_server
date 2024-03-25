@@ -30,4 +30,5 @@ public class Message {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "conversation_id")
     private Conversation conversation;
+
 }

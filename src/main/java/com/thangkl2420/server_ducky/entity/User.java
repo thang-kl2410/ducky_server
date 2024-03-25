@@ -5,7 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -29,7 +32,6 @@ public class User implements UserDetails {
   private String email;
   private String password;
   private String birthday;
-  @Column(unique = true)
   private String phoneNumber;
   private double longitude;
   private double latitude;
@@ -55,6 +57,11 @@ public class User implements UserDetails {
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
   @JsonIgnoreProperties("user")
   private List<SpecializationUser> specializationUsers;
+
+  @JsonIgnore
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+  private List<Post> posts;
+
   @JsonIgnore
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
