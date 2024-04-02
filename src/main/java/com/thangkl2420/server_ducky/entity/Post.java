@@ -23,6 +23,11 @@ public class Post {
     private Integer id;
     private String content;
     private Long timestamp;
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private int countComment;
+    @Column(nullable = false, columnDefinition = "int default 0")
+    private int countLike;
+
     @JsonIgnore
     private Integer isComment;
 

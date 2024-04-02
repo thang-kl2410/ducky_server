@@ -1,6 +1,6 @@
 package com.thangkl2420.server_ducky.controller;
 
-import com.thangkl2420.server_ducky.config.LogoutService;
+import com.thangkl2420.server_ducky.service.LogoutService;
 import com.thangkl2420.server_ducky.dto.AuthenticationRequest;
 import com.thangkl2420.server_ducky.entity.AuthenticationResponse;
 import com.thangkl2420.server_ducky.service.AuthenticationService;

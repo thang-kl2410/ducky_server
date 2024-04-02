@@ -23,7 +23,7 @@ import java.util.UUID;
 public class ResourceController {
     private final RssRepository repository;
 
-    private static final String uploadDir = "D:/ducky_resources/images";
+    private static final String uploadDir = "uploaded-resources";
 
     @PostMapping("/upload")
     public ResponseEntity<ResourceFile> handleFileUpload(@RequestParam("file") MultipartFile file) {
@@ -102,23 +102,23 @@ public class ResourceController {
         }
     }
 
-//    @GetMapping("/{filename}")
-//    public ResponseEntity<Resource> getByFileName(@PathVariable Integer id) {
-//        Optional<ResourceFile> optionalImage = repository.findById(id);
-//
-//        if (optionalImage.isPresent()) {
-//            ResourceFile image = optionalImage.get();
-//            try {
-//                UrlResource resource = new UrlResource(Paths.get(image.getFilePath()).toUri());
-//
-//                return ResponseEntity.ok()
-//                        .contentType(MediaType.IMAGE_JPEG)
-//                        .body(resource);
-//            } catch (IOException e) {
-//                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-//            }
-//        } else {
-//            return ResponseEntity.notFound().build();
-//        }
-//    }
+    @GetMapping("/name/{filename}")
+    public ResponseEntity<Resource> getByFileName(@PathVariable String name) {
+        Optional<ResourceFile> optionalImage = repository.findByFileName(name);
+
+        if (optionalImage.isPresent()) {
+            ResourceFile image = optionalImage.get();
+            try {
+                UrlResource resource = new UrlResource(Paths.get(image.getFilePath()).toUri());
+
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(resource);
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
 }

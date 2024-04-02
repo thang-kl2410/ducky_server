@@ -24,17 +24,14 @@ public enum Role {
                   Permission.MANAGER_DELETE,
                   Permission.MANAGER_CREATE
           )
-  ),
-  MANAGER(
+  ), MANAGER(
           Set.of(
                   Permission.MANAGER_READ,
                   Permission.MANAGER_UPDATE,
                   Permission.MANAGER_DELETE,
                   Permission.MANAGER_CREATE
           )
-  )
-
-  ;
+  );
 
   @Getter
   private final Set<Permission> permissions;

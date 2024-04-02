@@ -1,4 +1,4 @@
-package com.thangkl2420.server_ducky.config;
+package com.thangkl2420.server_ducky.service;
 
 import com.thangkl2420.server_ducky.repository.TokenRepository;
 import jakarta.servlet.http.HttpServletRequest;

@@ -2,8 +2,10 @@ package com.thangkl2420.server_ducky.service;
 
 import com.thangkl2420.server_ducky.dto.ChangePasswordRequest;
 import com.thangkl2420.server_ducky.dto.UpdateProfileRequest;
+import com.thangkl2420.server_ducky.entity.RescueCall;
 import com.thangkl2420.server_ducky.entity.User;
 import com.thangkl2420.server_ducky.entity.UserState;
+import com.thangkl2420.server_ducky.repository.RescueDetailRepository;
 import com.thangkl2420.server_ducky.repository.UserRepository;
 import com.thangkl2420.server_ducky.repository.UserStateRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +25,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository repository;
     private final UserStateRepository userStateRepository;
+    private final RescueDetailRepository rescueDetailRepository;
     public void changePassword(ChangePasswordRequest request, Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
@@ -104,5 +107,11 @@ public class UserService {
         double distance = R * c;
 
         return distance;
+    }
+
+    public List<String> getAllTokenDeviceUserByRescue(Principal connectedUser, RescueCall rescueCall){
+        List<String> devices = rescueDetailRepository.findUserByRescueDetail(rescueCall.getRescue().getId());
+
+        return devices;
     }
 }

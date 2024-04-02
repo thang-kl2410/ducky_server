@@ -1,0 +1,64 @@
+--follow
+
+CREATE OR REPLACE FUNCTION update_user_counts()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Tăng countFollower và countWatching lên 1 khi có INSERT vào bảng following
+    IF TG_OP = 'INSERT' THEN
+        UPDATE _user
+        SET countFollower = countFollower + 1,
+            countWatching = countWatching + 1
+        WHERE id = NEW.followerId OR id = NEW.userId;
+    -- Giảm countFollower và countWatching đi 1 khi có DELETE từ bảng following
+    ELSIF TG_OP = 'DELETE' THEN
+        UPDATE _user
+        SET countFollower = countFollower - 1,
+            countWatching = countWatching - 1
+        WHERE id = OLD.followerId OR id = OLD.userId;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_user_counts_trigger
+AFTER INSERT OR DELETE ON following
+FOR EACH ROW
+EXECUTE FUNCTION update_user_counts();
+
+--Like
+CREATE OR REPLACE FUNCTION update_post_count_like()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Tăng countLike của post lên 1 khi có INSERT vào bảng post_like
+    IF TG_OP = 'INSERT' THEN
+        UPDATE post
+        SET countLike = countLike + 1
+        WHERE id = NEW.postId;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_post_count_like_trigger
+AFTER INSERT ON post_like
+FOR EACH ROW
+EXECUTE FUNCTION update_post_count_like();
+
+--comment
+CREATE OR REPLACE FUNCTION update_post_count_comment()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Tăng countComment của post lên 1 khi có INSERT vào bảng post với isComment == 1
+    IF TG_OP = 'INSERT' AND NEW.isComment = 1 THEN
+        UPDATE post
+        SET countComment = countComment + 1
+        WHERE id = NEW.parentPostId;
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_post_count_comment_trigger
+AFTER INSERT ON post
+FOR EACH ROW
+EXECUTE FUNCTION update_post_count_comment();

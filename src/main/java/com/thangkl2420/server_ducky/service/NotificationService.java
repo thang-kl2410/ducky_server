@@ -1,6 +1,8 @@
 package com.thangkl2420.server_ducky.service;
 
 import com.google.firebase.messaging.*;
+import com.thangkl2420.server_ducky.entity.RescueCall;
+import com.thangkl2420.server_ducky.entity.User;
 import com.thangkl2420.server_ducky.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -71,6 +73,21 @@ public class NotificationService {
                     .setToken(tokenDevice)
                     .build();
             firebaseMessaging.send(message);
+        }
+    }
+
+    public void sendNotificationToMultipleUsers(RescueCall rescueCall, List<String> users) {
+        if (users.isEmpty()) {
+            return;
+        }
+        try {
+            MulticastMessage multicastMessage = MulticastMessage.builder()
+                    .setNotification(Notification.builder().setTitle("title").setBody("message").build())
+                    .addAllTokens(users)
+                    .build();
+            firebaseMessaging.sendMulticast(multicastMessage);
+        } catch (FirebaseMessagingException e) {
+            e.printStackTrace();
         }
     }
 }

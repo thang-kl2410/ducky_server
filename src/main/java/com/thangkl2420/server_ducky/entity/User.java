@@ -39,8 +39,17 @@ public class User implements UserDetails {
   private String avatar;
   private String background;
   private String idDevice;
-  //private String state;
   private String description;
+  @Column(nullable = false, columnDefinition = "int default 0")
+  private int countFollower;
+  @Column(nullable = false, columnDefinition = "int default 0")
+  private int countWatching;
+  @Column(nullable = false, columnDefinition = "int default 0")
+  private int countNotification;
+  @Column(nullable = false, columnDefinition = "int default 0")
+  private int countWaitingMessage;
+  @Column(nullable = false, columnDefinition = "int default 0")
+  private int countWaitingNotification;
 
   @Enumerated(EnumType.STRING)
   private Role role;

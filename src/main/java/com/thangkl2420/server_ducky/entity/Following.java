@@ -2,7 +2,6 @@ package com.thangkl2420.server_ducky.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.thangkl2420.server_ducky.dto.FollowingId;
-import com.thangkl2420.server_ducky.dto.PostLikeId;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

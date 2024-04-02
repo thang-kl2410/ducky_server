@@ -19,10 +19,14 @@ import java.util.List;
 public class PostService {
     final private PostRepository repository;
     final private PostLikeRepository postLikeRepository;
-    final private RescueRepository rescueRepository;
 
     public List<Post> getAll(){
         return repository.findAllPost();
+    }
+
+    public List<Post> getAllMyPost(Principal connectedUser){
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        return repository.findPostById(user.getId());
     }
 
     public List<Post> getComments(Integer idPost){
@@ -81,4 +85,6 @@ public class PostService {
     public List<Post> getAllByFriend(Principal connectUser){
         return repository.findAll();
     }
+
+
 }

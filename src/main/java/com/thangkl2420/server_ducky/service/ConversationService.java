@@ -12,6 +12,7 @@ import com.thangkl2420.server_ducky.repository.MessageRepository;
 import com.thangkl2420.server_ducky.repository.UserConversationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -24,8 +25,9 @@ public class ConversationService {
     private final ConversationRepository repository;
     private final UserConversationRepository userConversationRepository;
     private final MessageRepository messageRepository;
-
     private final NotificationService notificationService;
+
+    private final BCryptPasswordEncoder encoder;
 
     public List<ConversationDto> getAllConversation(Principal connectedUser){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
@@ -90,4 +92,15 @@ public class ConversationService {
             System.out.println(e);
         }
     }
+
+    String encryptMessage(String message){
+        return  encoder.encode(message);
+    }
+//
+//    List<Message> decryptMessage(List<Message> messages){
+//        for (Message message : messages) {
+//            String decryptedContent = encoder.d(message.getContent());
+//            // Hiển thị decryptedContent cho người dùng
+//        }
+//    }
 }
