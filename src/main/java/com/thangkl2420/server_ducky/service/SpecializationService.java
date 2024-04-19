@@ -45,8 +45,5 @@ public class SpecializationService {
         specializationUserRepository.deleteById(id);
     }
 
-//    List<SpecializationUser> getAllByUser(Integer id){
-//        return specializationUserRepository.findAllByUser(id);
-//    }
 
 }

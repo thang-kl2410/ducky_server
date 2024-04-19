@@ -1,0 +1,11 @@
+INSERT INTO Rescue_type (id, name_rescue_type) VALUES
+	(1, 'animal'),
+	(2, 'fire'),
+	(3, 'child'),
+	(4, 'geographical'),
+	(5, 'medical'),
+	(6, 'transportation'),
+	(7, 'health'),
+	(8, 'maritime'),
+	(9, 'natural'),
+	(10, 'other');

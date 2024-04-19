@@ -37,7 +37,24 @@ public class RescueController {
     public ResponseEntity<?> createRescueCall(@RequestBody RescueCall rescueCall, Principal connectedUser){
         service.createRescueCall(connectedUser, rescueCall);
         List<String> devices = userService.getAllTokenDeviceUserByRescue(connectedUser, rescueCall);
-        notificationService.sendNotificationToMultipleUsers(rescueCall, devices);
+        if(devices.isEmpty()){
+            System.out.println("Can't find current user here");
+        } else {
+            notificationService.sendNotificationToMultipleUsers(rescueCall, devices);
+        }
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/set")
+    public ResponseEntity<?> setRescueType(@RequestBody List<RescueType> specializations, Principal connectedUser){
+        service.updateUserRescue(connectedUser, specializations);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/confirm-rescue")
+    public ResponseEntity<?> confirmRescue(@Param(value = "id") Integer id,Principal connectedUser){
+        service.confirmRescue(connectedUser, id);
+        return ResponseEntity.ok().build();
+    }
+
 }

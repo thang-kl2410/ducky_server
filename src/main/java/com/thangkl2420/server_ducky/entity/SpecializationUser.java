@@ -18,9 +18,6 @@ public class SpecializationUser {
     @EmbeddedId
     private SpecializationUserId id;
 
-//    @ManyToOne
-//    @JoinColumn(name = "specialization_id", referencedColumnName = "id", insertable = false, updatable = false)
-//    private Specialization specialization;
     @ManyToOne
     @JoinColumn(name = "rescueType_id", referencedColumnName = "id", insertable = false, updatable = false)
     private RescueType rescueType;

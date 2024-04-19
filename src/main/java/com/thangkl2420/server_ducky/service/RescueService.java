@@ -1,5 +1,7 @@
 package com.thangkl2420.server_ducky.service;
 
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.thangkl2420.server_ducky.dto.SpecializationUserId;
 import com.thangkl2420.server_ducky.dto.UserRescueCallId;
 import com.thangkl2420.server_ducky.entity.*;
 import com.thangkl2420.server_ducky.repository.*;
@@ -21,6 +23,7 @@ public class RescueService {
     private final UserRescueCallRepository userRescueCallRepository;
     private final RescueDetailRepository rescueDetailRepository;
     private final UserRepository userRepository;
+    private final NotificationService notificationService;
 
     public void createRescueCall(Principal connectedUser, RescueCall rescueCall){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
@@ -42,5 +45,38 @@ public class RescueService {
         urc.setRescueCall(r);
         urc.setUser(user);
         userRescueCallRepository.save(urc);
+    }
+
+    public void updateUserRescue(Principal connectedUser, List<RescueType> rescueTypes){
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        rescueTypeRepository.deleteByUser(user.getId());
+        for(RescueType rt:rescueTypes) {
+            SpecializationUser su = new SpecializationUser();
+            su.setUser(user);
+            su.setRescueType(rt);
+            su.setId(new SpecializationUserId(rt.getId(), user.getId()));
+        }
+    }
+
+    public void confirmRescue(Principal connectedUser, Integer id){
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        RescueCall r = rescueCallRepository.findAllById(id).orElse(null);
+        List<User> users = rescueCallRepository.findConfirmUsersById(id);
+
+
+        if(!users.isEmpty()){
+            UserRescueCall urc = new UserRescueCall();
+            urc.setId(new UserRescueCallId(user.getId(), r.getId()));
+            urc.setCreator(false);
+            urc.setRescueCall(r);
+            urc.setUser(user);
+            userRescueCallRepository.save(urc);
+            User u = rescueCallRepository.findCreateUserById(id).orElse(null);
+            try {
+                notificationService.sendFCMById(u.getId(), "", "", user.getId());
+            } catch (FirebaseMessagingException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
