@@ -1,12 +1,20 @@
 package com.thangkl2420.server_ducky;
 
+import com.thangkl2420.server_ducky.entity.user.User;
+import com.thangkl2420.server_ducky.entity.user.UserAction;
+import com.thangkl2420.server_ducky.repository.UserActionRepository;
+import com.thangkl2420.server_ducky.repository.UserRepository;
 import com.thangkl2420.server_ducky.service.AuthenticationService;
 import com.thangkl2420.server_ducky.service.ConversationService;
+import com.thangkl2420.server_ducky.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @SpringBootApplication
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
@@ -18,7 +26,9 @@ public class DuckyApplication {
 	@Bean
 	public CommandLineRunner commandLineRunner(
 			AuthenticationService service,
-			ConversationService conversationService
+			ConversationService conversationService,
+			UserRepository repository,
+			UserActionRepository userActionRepository
 	) {
 		return args -> {
 //			var admin = RegisterRequest.builder()
@@ -38,6 +48,13 @@ public class DuckyApplication {
 //					.role(MANAGER)
 //					.build();
 //			System.out.println("Manager token: " + service.register(manager).getAccessToken());
+			UserAction ua = userActionRepository.getById(1);
+			List<User> users = repository.findAll();
+			users.stream().map(u -> {
+				u.setUserAction(ua);
+				return u;
+			}).collect(Collectors.toList());
+			repository.saveAll(users);
 		};
 	}
 }

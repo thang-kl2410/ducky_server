@@ -1,8 +1,8 @@
 package com.thangkl2420.server_ducky.repository;
 
-import com.thangkl2420.server_ducky.entity.Conversation;
-import com.thangkl2420.server_ducky.entity.Message;
-import com.thangkl2420.server_ducky.entity.User;
+import com.thangkl2420.server_ducky.entity.chat.Conversation;
+import com.thangkl2420.server_ducky.entity.chat.Message;
+import com.thangkl2420.server_ducky.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

@@ -1,6 +1,7 @@
 package com.thangkl2420.server_ducky.service;
 
 import com.thangkl2420.server_ducky.repository.TokenRepository;
+import com.thangkl2420.server_ducky.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class LogoutService implements LogoutHandler {
   private final TokenRepository tokenRepository;
+  private final UserRepository userRepository;
 
   @Override
   public void logout(

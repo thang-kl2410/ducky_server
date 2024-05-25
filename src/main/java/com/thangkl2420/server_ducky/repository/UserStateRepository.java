@@ -1,6 +1,6 @@
 package com.thangkl2420.server_ducky.repository;
 
-import com.thangkl2420.server_ducky.entity.UserState;
+import com.thangkl2420.server_ducky.entity.user.UserState;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

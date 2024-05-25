@@ -1,8 +1,8 @@
 package com.thangkl2420.server_ducky.service;
 
-import com.thangkl2420.server_ducky.entity.ResourceFile;
+import com.thangkl2420.server_ducky.entity.resource.ResourceFile;
 import com.thangkl2420.server_ducky.repository.RssRepository;
-import com.thangkl2420.server_ducky.dto.ResourceRequest;
+import com.thangkl2420.server_ducky.dto.post.ResourceRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

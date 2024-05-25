@@ -1,9 +1,9 @@
 package com.thangkl2420.server_ducky.repository;
 
-import com.thangkl2420.server_ducky.dto.FollowingId;
-import com.thangkl2420.server_ducky.entity.Following;
-import com.thangkl2420.server_ducky.entity.Post;
-import com.thangkl2420.server_ducky.entity.User;
+import com.thangkl2420.server_ducky.dto.user.FollowingId;
+import com.thangkl2420.server_ducky.entity.user.Following;
+import com.thangkl2420.server_ducky.entity.post.Post;
+import com.thangkl2420.server_ducky.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

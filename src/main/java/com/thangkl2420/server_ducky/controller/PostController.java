@@ -1,9 +1,8 @@
 package com.thangkl2420.server_ducky.controller;
 
-import com.thangkl2420.server_ducky.entity.Post;
+import com.thangkl2420.server_ducky.entity.post.Post;
 import com.thangkl2420.server_ducky.service.PostService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -34,26 +33,22 @@ public class PostController {
     }
 
     @PostMapping("/create")
-    ResponseEntity<?> createPost(@RequestBody Post post, Principal connectUser){
-        service.createPost(post, connectUser);
-        return ResponseEntity.ok().build();
+    ResponseEntity<Post> createPost(@RequestBody Post post, Principal connectUser){
+        return ResponseEntity.ok(service.createPost(post, connectUser));
     }
 
     @PostMapping("/comment/{id}")
-    ResponseEntity<?> comment(@RequestBody Post post, @PathVariable(value = "id") Integer id, Principal connectUser){
-        service.comment(post, id, connectUser);
-        return ResponseEntity.ok().build();
+    ResponseEntity<Post> comment(@RequestBody Post post, @PathVariable(value = "id") Integer id, Principal connectUser){
+        return ResponseEntity.ok(service.comment(post, id, connectUser));
     }
 
     @PostMapping("/update")
-    ResponseEntity<?> updatePost(@RequestBody Post post){
-        service.updatePost(post);
-        return ResponseEntity.ok().build();
+    ResponseEntity<Post> updatePost(@RequestBody Post post){
+        return ResponseEntity.ok(service.updatePost(post));
     }
 
     @DeleteMapping("/delete")
-    ResponseEntity<?> deletePost(@Param(value = "id") Integer id){
-        service.deletePost(id);
-        return ResponseEntity.ok().build();
+    ResponseEntity<Boolean> deletePost(@Param(value = "id") Integer id){
+        return ResponseEntity.ok(service.deletePost(id));
     }
 }

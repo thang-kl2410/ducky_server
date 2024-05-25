@@ -1,9 +1,9 @@
 package com.thangkl2420.server_ducky.service;
 
-import com.thangkl2420.server_ducky.dto.SpecializationUserId;
-import com.thangkl2420.server_ducky.entity.RescueType;
-import com.thangkl2420.server_ducky.entity.SpecializationUser;
-import com.thangkl2420.server_ducky.entity.User;
+import com.thangkl2420.server_ducky.dto.user.SpecializationUserId;
+import com.thangkl2420.server_ducky.entity.rescue.RescueType;
+import com.thangkl2420.server_ducky.entity.user.SpecializationUser;
+import com.thangkl2420.server_ducky.entity.user.User;
 import com.thangkl2420.server_ducky.repository.RescueTypeRepository;
 import com.thangkl2420.server_ducky.repository.SpecializationUserRepository;
 import com.thangkl2420.server_ducky.repository.UserRepository;

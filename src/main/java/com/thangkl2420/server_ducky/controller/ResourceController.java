@@ -1,6 +1,6 @@
 package com.thangkl2420.server_ducky.controller;
 
-import com.thangkl2420.server_ducky.entity.ResourceFile;
+import com.thangkl2420.server_ducky.entity.resource.ResourceFile;
 import com.thangkl2420.server_ducky.repository.RssRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.UrlResource;
@@ -14,6 +14,8 @@ import org.springframework.core.io.Resource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -23,7 +25,7 @@ import java.util.UUID;
 public class ResourceController {
     private final RssRepository repository;
 
-    private static final String uploadDir = "uploaded-resources";
+    private static final String uploadDir = "src/main/uploaded-resources/";
 
     @PostMapping("/upload")
     public ResponseEntity<ResourceFile> handleFileUpload(@RequestParam("file") MultipartFile file) {
@@ -37,13 +39,33 @@ public class ResourceController {
             resourceFile.setFilePath(filePath);
             repository.save(resourceFile);
             Files.write(Paths.get(filePath), fileBytes);
-            //String fileUrl = "/api/v1/resources/" + resourceFile.getId();
-            //String fileUrl = resourceFile.getId().toString();
             return ResponseEntity.ok(resourceFile);
         } catch (IOException e) {
             //return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading file.");
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping("/upload-multiple")
+    public ResponseEntity<List<ResourceFile>> handleMultipleFileUpload(@RequestParam("files") MultipartFile[] files) {
+        List<ResourceFile> resourceFiles = new ArrayList<>();
+        for (MultipartFile file : files) {
+            try {
+                byte[] fileBytes = file.getBytes();
+                ResourceFile resourceFile = new ResourceFile();
+                String fileName = UUID.randomUUID().toString() + "_" + sanitizeFileName(file.getOriginalFilename());
+                resourceFile.setFileName(fileName);
+                resourceFile.setFileType(file.getContentType());
+                String filePath = uploadDir + fileName;
+                resourceFile.setFilePath(filePath);
+                repository.save(resourceFile);
+                Files.write(Paths.get(filePath), fileBytes);
+                resourceFiles.add(resourceFile);
+            } catch (IOException e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        }
+        return ResponseEntity.ok(resourceFiles);
     }
 
     private String sanitizeFileName(String fileName) {

@@ -1,6 +1,6 @@
 package com.thangkl2420.server_ducky.controller;
 
-import com.thangkl2420.server_ducky.dto.NotificationRequest;
+import com.thangkl2420.server_ducky.dto.post.NotificationRequest;
 import com.thangkl2420.server_ducky.service.NotificationService;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;

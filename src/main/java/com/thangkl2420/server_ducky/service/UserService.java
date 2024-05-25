@@ -1,10 +1,10 @@
 package com.thangkl2420.server_ducky.service;
 
-import com.thangkl2420.server_ducky.dto.ChangePasswordRequest;
-import com.thangkl2420.server_ducky.dto.UpdateProfileRequest;
-import com.thangkl2420.server_ducky.entity.RescueCall;
-import com.thangkl2420.server_ducky.entity.User;
-import com.thangkl2420.server_ducky.entity.UserState;
+import com.thangkl2420.server_ducky.dto.auth.ChangePasswordRequest;
+import com.thangkl2420.server_ducky.dto.user.UpdateProfileRequest;
+import com.thangkl2420.server_ducky.entity.rescue.RescueCall;
+import com.thangkl2420.server_ducky.entity.user.User;
+import com.thangkl2420.server_ducky.entity.user.UserState;
 import com.thangkl2420.server_ducky.repository.RescueDetailRepository;
 import com.thangkl2420.server_ducky.repository.UserRepository;
 import com.thangkl2420.server_ducky.repository.UserStateRepository;
@@ -26,7 +26,7 @@ public class UserService {
     private final UserRepository repository;
     private final UserStateRepository userStateRepository;
     private final RescueDetailRepository rescueDetailRepository;
-    public void changePassword(ChangePasswordRequest request, Principal connectedUser) {
+    public User changePassword(ChangePasswordRequest request, Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             throw new IllegalStateException("Wrong password");
@@ -35,7 +35,7 @@ public class UserService {
             throw new IllegalStateException("Password are not the same");
         }
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        repository.save(user);
+        return repository.save(user);
     }
 
     public List<User> getAllUser(Principal connectedUser){
@@ -43,27 +43,27 @@ public class UserService {
         return users;
     }
 
-    public void saveDeviceToken(String deviceToken, Principal connectedUser){
+    public User saveDeviceToken(String deviceToken, Principal connectedUser){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         user.setIdDevice(deviceToken);
-        repository.save(user);
+        return repository.save(user);
     }
 
-    public void updateState(Integer state, Principal connectedUser){
+    public User updateState(Integer state, Principal connectedUser){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         UserState userState = userStateRepository.findById(state).orElse(null);
         user.setUserState(userState);
-        repository.save(user);
+        return repository.save(user);
     }
 
-    public void setLocation(double longitude, double latitude, Principal connectedUser){
+    public User setLocation(double longitude, double latitude, Principal connectedUser){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         user.setLongitude(longitude);
         user.setLatitude(latitude);
-        repository.save(user);
+        return repository.save(user);
     }
 
-    public void updateProfile(UpdateProfileRequest request, Principal connectedUser){
+    public User updateProfile(UpdateProfileRequest request, Principal connectedUser){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         user.setFirstname(request.getFirstname());
         user.setLastname(request.getLastname());
@@ -73,7 +73,7 @@ public class UserService {
         user.setBackground(request.getBackground());
         user.setDescription(request.getDescription());
         user.setAddress(request.getAddress());
-        repository.save(user);
+        return repository.save(user);
     }
 
     public User getById(Integer id){
@@ -90,6 +90,7 @@ public class UserService {
         List<User> users = repository.findAll();
         var u = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         return users.stream()
+                .filter(user -> u.getId() != user.getId())
                 .filter(user -> !isNull(user.getLatitude()) && !isNull(user.getLongitude()))
                 .filter(user -> calculateDistance(user.getLatitude(), user.getLongitude(),
                         u.getLatitude(), u.getLongitude()) < 10)
@@ -113,5 +114,9 @@ public class UserService {
         List<String> devices = rescueDetailRepository.findUserByRescueDetail(rescueCall.getRescue().getId());
 
         return devices;
+    }
+
+    public List<User> getAll(){
+        return repository.findAll();
     }
 }

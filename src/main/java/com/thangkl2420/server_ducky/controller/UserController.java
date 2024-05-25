@@ -1,8 +1,8 @@
 package com.thangkl2420.server_ducky.controller;
 
-import com.thangkl2420.server_ducky.dto.ChangePasswordRequest;
-import com.thangkl2420.server_ducky.dto.UpdateProfileRequest;
-import com.thangkl2420.server_ducky.entity.User;
+import com.thangkl2420.server_ducky.dto.auth.ChangePasswordRequest;
+import com.thangkl2420.server_ducky.dto.user.UpdateProfileRequest;
+import com.thangkl2420.server_ducky.entity.user.User;
 import com.thangkl2420.server_ducky.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.query.Param;
@@ -20,12 +20,11 @@ public class UserController {
     private final UserService service;
 
     @PostMapping("change-password")
-    public ResponseEntity<?> changePassword(
+    public ResponseEntity<User> changePassword(
           @RequestBody ChangePasswordRequest request,
           Principal connectedUser
     ) {
-        service.changePassword(request, connectedUser);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(service.changePassword(request, connectedUser));
     }
 
     @GetMapping("/current-user")
@@ -37,30 +36,26 @@ public class UserController {
     }
 
     @GetMapping("/device-token")
-    public ResponseEntity<?> getDeviceToken(Principal connectedUser, @Param(value = "device_token") String deviceToken) {
-        service.saveDeviceToken(deviceToken, connectedUser);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<User> getDeviceToken(Principal connectedUser, @Param(value = "device_token") String deviceToken) {
+        return ResponseEntity.ok(service.saveDeviceToken(deviceToken, connectedUser));
     }
 
     @PostMapping("/update-profile")
-    public ResponseEntity<?> updateProfile(Principal connectedUser, @RequestBody UpdateProfileRequest request) {
-        service.updateProfile(request, connectedUser);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<User> updateProfile(Principal connectedUser, @RequestBody UpdateProfileRequest request) {
+        return ResponseEntity.ok( service.updateProfile(request, connectedUser));
     }
 
     @GetMapping("/update-state")
-    public ResponseEntity<?> updateState(Principal connectedUser, @Param(value = "state") Integer state){
-        service.updateState(state, connectedUser);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<User> updateState(Principal connectedUser, @Param(value = "state") Integer state){
+        return ResponseEntity.ok(service.updateState(state, connectedUser));
     }
 
     @GetMapping("/location")
-    public ResponseEntity<?> setLocation(
+    public ResponseEntity<User> setLocation(
             Principal connectedUser,
             @Param(value = "longitude") double longitude,
             @Param(value = "latitude") double latitude){
-        service.setLocation(longitude, latitude, connectedUser);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(service.setLocation(longitude, latitude, connectedUser));
     }
 
     @GetMapping("/id-user")

@@ -1,0 +1,144 @@
+SELECT * FROM rescue_detail
+
+INSERT INTO rescue_detail (rescue_id, rescue_type_id, rescue_personnel_id) VALUES
+-- Ngộ độc thực phẩm
+(1, 5, 1),
+-- Tai nạn giao thông
+(2, 6, 1),
+-- Hỏa hoạn
+(3, 2, 2),
+-- Ngập lụt
+(4, 9, 2),
+-- Ngộ độc khí độc
+(5, 5, 1),
+-- Nhồi máu cơ tim
+(6, 7, 1),
+-- Cứu hộ dưới nước
+(7, 8, 2),
+-- Rơi từ độ cao
+(8, 10, 1),
+-- Ngộ độc hóa chất
+(9, 5, 1),
+-- Hỏa hoạn tàu hỏa
+(10, 8, 2),
+-- Mất tích trong rừng
+(11, 4, 1),
+-- Sự cố máy bay
+(12, 6, 1),
+-- Vỡ đập
+(13, 9, 2),
+-- Độc tố nổ
+(14, 5, 1),
+-- Trật bánh xe
+(15, 6, 1),
+-- Sự cố thang máy
+(16, 4, 1),
+-- Đánh bại bạo lực
+(17, 7, 2),
+-- Nhồi máu não
+(18, 7, 1),
+-- Cơn động đất
+(19, 9, 2),
+-- Sự cố núi lửa
+(20, 9, 2),
+-- Vụ nổ khí ga
+(21, 2, 2),
+-- Sự cố hóa học
+(22, 9, 2),
+-- Mắc kẹt trong thang máy
+(23, 4, 1),
+-- Sự cố cầu cống
+(24, 4, 1),
+-- Nạn đói
+(25, 9, 2),
+-- Nguy cơ sạt lở đất
+(26, 4, 1),
+-- Người đuối nước
+(27, 8, 2),
+-- Sự cố điện
+(28, 2, 2),
+-- Tòa nhà đổ sập
+(29, 4, 1),
+-- Nguy cơ nhiễm độc
+(30, 5, 1),
+-- Cứu hộ hàng hải
+(31, 8, 2),
+-- Nạn cướp biển
+(32, 8, 2),
+-- Vụ nổ hóa học
+(33, 2, 2),
+-- Nguy cơ sạt lở núi
+(34, 4, 1),
+-- Sự cố cảng biển
+(35, 8, 2),
+-- Sự cố hồ chứa
+(36, 9, 2),
+-- Nạn đói trẻ em
+(37, 3, 1),
+-- Cơn lốc xoáy
+(38, 9, 2),
+-- Sự cố công nghệ
+(39, 2, 2),
+-- Nạn nổ bom
+(40, 2, 2),
+-- Sự cố đập nước
+(41, 9, 2),
+-- Nạn mất tích trẻ em
+(42, 3, 1),
+-- Cứu hộ dưới mặt đất
+(43, 4, 1),
+-- Sự cố môi trường
+(44, 9, 2),
+-- Nạn buôn người
+(45, 8, 2),
+-- Sự cố động vật hoang dã
+(46, 1, 2),
+-- Nạn đói hàng loạt
+(47, 9, 2),
+-- Sự cố phong tỏa
+(48, 9, 2),
+-- Nạn cướp hải tặc
+(49, 8, 2),
+-- Sự cố nhiễm trùng
+(50, 5, 1),
+-- Nạn tội phạm xuyên quốc gia
+(51, 8, 2),
+-- Sự cố mất điện
+(52, 2, 2),
+-- Nạn nổ khí đốt
+(53, 2, 2),
+-- Sự cố cháy nổ
+(54, 2, 2),
+-- Nạn mất tích hàng loạt
+(55, 4, 1),
+-- Sự cố thiên tai
+(56, 9, 2),
+-- Sự cố hồ chứa nước
+(57, 9, 2),
+-- Nạn khủng bố
+(58, 8, 2),
+-- Sự cố tấn công mạng
+(59, 2, 2),
+-- Sự cố hỏa họa
+(60, 2, 2),
+-- Trường hợp khác
+(61, 1, 1),
+(61, 2, 1),
+(61, 3, 1),
+(61, 4, 1),
+(61, 5, 1),
+(61, 6, 1),
+(61, 7, 1),
+(61, 8, 1),
+(61, 9, 1),
+(61, 10, 1),
+(61, 1, 2),
+(61, 2, 2),
+(61, 3, 2),
+(61, 4, 2),
+(61, 5, 2),
+(61, 6, 2),
+(61, 7, 2),
+(61, 8, 2),
+(61, 9, 2),
+(61, 10, 2);

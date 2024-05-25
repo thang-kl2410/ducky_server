@@ -1,12 +1,13 @@
 package com.thangkl2420.server_ducky.service;
 
-import com.thangkl2420.server_ducky.dto.AuthenticationRequest;
-import com.thangkl2420.server_ducky.dto.RegisterRequest;
-import com.thangkl2420.server_ducky.entity.AuthenticationResponse;
-import com.thangkl2420.server_ducky.entity.Token;
+import com.thangkl2420.server_ducky.dto.auth.AuthenticationRequest;
+import com.thangkl2420.server_ducky.dto.auth.RegisterRequest;
+import com.thangkl2420.server_ducky.dto.auth.ResetPasswordRequest;
+import com.thangkl2420.server_ducky.entity.auth.AuthenticationResponse;
+import com.thangkl2420.server_ducky.entity.auth.Token;
 import com.thangkl2420.server_ducky.repository.TokenRepository;
-import com.thangkl2420.server_ducky.entity.TokenType;
-import com.thangkl2420.server_ducky.entity.User;
+import com.thangkl2420.server_ducky.entity.auth.TokenType;
+import com.thangkl2420.server_ducky.entity.user.User;
 import com.thangkl2420.server_ducky.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -114,5 +115,20 @@ public class AuthenticationService {
         new ObjectMapper().writeValue(response.getOutputStream(), authResponse);
       }
     }
+  }
+
+  public Boolean resetPassword(ResetPasswordRequest request) {
+    User user = repository.findByEmail(request.getEmail()).orElseThrow(null);
+    if(user != null){
+      user.setPassword(passwordEncoder.encode(request.getPassword()));
+      repository.save(user);
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  public Boolean isEmailExist(String email){
+    return repository.existsByEmail(email);
   }
 }

@@ -3,7 +3,7 @@ package com.thangkl2420.server_ducky.repository;
 import java.util.List;
 import java.util.Optional;
 
-import com.thangkl2420.server_ducky.entity.Token;
+import com.thangkl2420.server_ducky.entity.auth.Token;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

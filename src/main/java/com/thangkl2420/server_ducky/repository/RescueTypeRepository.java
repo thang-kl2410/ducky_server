@@ -1,6 +1,7 @@
 package com.thangkl2420.server_ducky.repository;
 
-import com.thangkl2420.server_ducky.entity.RescueType;
+import com.thangkl2420.server_ducky.entity.rescue.RescueType;
+import com.thangkl2420.server_ducky.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -14,8 +15,8 @@ public interface RescueTypeRepository extends JpaRepository<RescueType, Integer>
             "WHERE u.id = :id")
     Optional<RescueType> findAllById(Integer id);
 
-    @Query("DELETE FROM SpecializationUser su WHERE su.id.userId = :id")
-    void deleteByUser(Integer id);
+//    @Query("DELETE FROM SpecializationUser su WHERE su.user = :user")
+//    void deleteByUser(User user);
 
     @Query("SELECT su.rescueType FROM SpecializationUser su WHERE su.id.userId = :id")
     List<RescueType> getAllByUser(Integer id);

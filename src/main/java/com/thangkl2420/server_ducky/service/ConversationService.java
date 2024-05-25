@@ -1,15 +1,13 @@
 package com.thangkl2420.server_ducky.service;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
-import com.thangkl2420.server_ducky.dto.ConversationDto;
-import com.thangkl2420.server_ducky.dto.UserConversationId;
-import com.thangkl2420.server_ducky.entity.Conversation;
-import com.thangkl2420.server_ducky.entity.Message;
-import com.thangkl2420.server_ducky.entity.User;
-import com.thangkl2420.server_ducky.entity.UserConversation;
-import com.thangkl2420.server_ducky.repository.ConversationRepository;
-import com.thangkl2420.server_ducky.repository.MessageRepository;
-import com.thangkl2420.server_ducky.repository.UserConversationRepository;
+import com.thangkl2420.server_ducky.dto.chat.ConversationDto;
+import com.thangkl2420.server_ducky.dto.chat.UserConversationId;
+import com.thangkl2420.server_ducky.entity.chat.Conversation;
+import com.thangkl2420.server_ducky.entity.chat.Message;
+import com.thangkl2420.server_ducky.entity.user.User;
+import com.thangkl2420.server_ducky.entity.chat.UserConversation;
+import com.thangkl2420.server_ducky.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -28,6 +26,8 @@ public class ConversationService {
     private final NotificationService notificationService;
 
     private final BCryptPasswordEncoder encoder;
+
+    Map<String, String> sdpData = new HashMap<>();
 
     public List<ConversationDto> getAllConversation(Principal connectedUser){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
@@ -48,6 +48,7 @@ public class ConversationService {
                     }
                 })
                 .filter(Objects::nonNull)
+                .filter(conversationDto -> conversationDto.getLastMessage() != null)
                 .collect(Collectors.toList());
         Collections.sort(cvs, Comparator.comparing(c -> c.getLastMessage().getTimestamp()));
         return cvs;
@@ -80,7 +81,7 @@ public class ConversationService {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         User otherUser = repository.findUserInConversation(conversation.getId(), user.getId()).orElse(null);
         try {
-            if (otherUser != null) {
+            if (otherUser.getIdDevice() != null && !otherUser.getIdDevice().isEmpty()) {
                 notificationService.sendFCMById(
                         otherUser.getId(),
                         user.getLastname(),
@@ -103,4 +104,5 @@ public class ConversationService {
 //            // Hiển thị decryptedContent cho người dùng
 //        }
 //    }
+
 }
