@@ -16,8 +16,12 @@ public class DuckyNotification {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+    private String title;
     private String content;
     private String resource;
-    private int timestamp;
+    private String type;
+    private String idContent;
+    private long timestamp;
     private boolean haveIssued;
+
 }

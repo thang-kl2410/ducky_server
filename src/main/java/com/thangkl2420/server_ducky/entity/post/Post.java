@@ -22,6 +22,7 @@ public class Post {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String content;
+    private String address;
     private Long timestamp;
     @Column(nullable = false, columnDefinition = "int default 0")
     private int countComment;

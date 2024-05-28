@@ -1,16 +1,23 @@
 package com.thangkl2420.server_ducky.service;
 
 import com.google.firebase.messaging.*;
+import com.thangkl2420.server_ducky.dto.user.UserNotificationId;
 import com.thangkl2420.server_ducky.entity.rescue.RescueCall;
 import com.thangkl2420.server_ducky.entity.user.DuckyNotification;
 import com.thangkl2420.server_ducky.entity.user.User;
+import com.thangkl2420.server_ducky.entity.user.UserNotification;
 import com.thangkl2420.server_ducky.repository.NotificationRepository;
+import com.thangkl2420.server_ducky.repository.UserNotificationRepository;
 import com.thangkl2420.server_ducky.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -22,6 +29,7 @@ public class NotificationService {
     private final FirebaseMessaging firebaseMessaging;
     private final UserRepository userRepository;
     private final NotificationRepository notificationRepository;
+    private final UserNotificationRepository userNotificationRepository;
 
     public void sendFCMNotification(String token, String title, String body) throws FirebaseMessagingException {
         Message message = Message.builder()
@@ -91,6 +99,7 @@ public class NotificationService {
             return;
         }
         try {
+            saveListNotification("Khẩn cấp",rescueCall.getRescue().getRescueName(), "rescue", String.valueOf(rescueCall.getId()));
             MulticastMessage multicastMessage = MulticastMessage.builder()
                     .setNotification(
                             Notification
@@ -117,6 +126,13 @@ public class NotificationService {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         String tokenDevice = userRepository.findDeviceToken(receiver).orElseThrow(null);
         if(tokenDevice != null && !tokenDevice.isEmpty()){
+            saveDuckyNotification(
+                    "Yêu cầu cuộc gọi",
+                    "Từ " + user.getFirstname() + " " + user.getLastname(),
+                    "rtc",
+                    room,
+                    receiver
+            );
             Message message = Message.builder()
                     .putData("title", "Yêu cầu cuộc gọi")
                     .putData("body", "Từ " + user.getFirstname() + " " + user.getLastname())
@@ -134,12 +150,19 @@ public class NotificationService {
         }
     }
 
-    public void sendFCMFinishRescue(String tokenDevice, String id) throws FirebaseMessagingException {
+    public void sendFCMFinishRescue(String tokenDevice, Integer id, Integer idUser) throws FirebaseMessagingException {
+        saveDuckyNotification(
+                "Xác nhận cứu hộ.",
+                "Nhấn vào để xem chi tiết thông tin.",
+                "finish",
+                    String.valueOf(id),
+                    idUser
+                );
         Message message = Message.builder()
                 .putData("title", "Xác nhận cứu hộ.")
                 .putData("body", "Nhấn vào để xem chi tiết thông tin.")
                 .putData("type", "finish")
-                .putData("id", id)
+                .putData("id", String.valueOf(id))
                 .setNotification(
                         Notification.builder()
                                 .setTitle("Xác nhận cứu hộ.")
@@ -149,5 +172,68 @@ public class NotificationService {
                 .setToken(tokenDevice)
                 .build();
         firebaseMessaging.send(message);
+    }
+
+    public void finishRescueCall(User u) throws FirebaseMessagingException {
+        if(u.getIdDevice() != null && !u.getIdDevice().isEmpty()){
+            Message message = Message.builder()
+                    .putData("title", "Kết thúc yêu cầu cứu hộ")
+                    .putData("body", "Hoàn thành")
+                    .putData("type", "complete")
+                    .setNotification(
+                            Notification.builder()
+                                    .setTitle("Kết thúc yêu cầu cứu hộ")
+                                    .setBody("Hoàn thành")
+                                    .build()
+                    )
+                    .setToken(u.getIdDevice())
+                    .build();
+            firebaseMessaging.send(message);
+        }
+    }
+
+    private void saveDuckyNotification(String title, String content, String type, String contentId, Integer id){
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        ZonedDateTime zonedDateTime = currentDateTime.atZone(ZoneId.systemDefault());
+        DuckyNotification notify = new DuckyNotification();
+        notify.setTimestamp(zonedDateTime.toInstant().toEpochMilli());
+        notify.setTitle(title);
+        notify.setContent(content);
+        notify.setType(type);
+        notify.setIdContent(contentId);
+        DuckyNotification dn = notificationRepository.save(notify);
+        UserNotification un = new UserNotification();
+        un.setId(new UserNotificationId(dn.getId(), id));
+        un.setIsSeen(1);
+        userNotificationRepository.save(un);
+    }
+
+    private void saveListNotification(String title, String content, String type, String contentId){
+        LocalDateTime currentDateTime = LocalDateTime.now();
+        ZonedDateTime zonedDateTime = currentDateTime.atZone(ZoneId.systemDefault());
+        DuckyNotification notify = new DuckyNotification();
+        notify.setTimestamp(zonedDateTime.toInstant().toEpochMilli());
+        notify.setTitle(title);
+        notify.setContent(content);
+        notify.setType(type);
+        notify.setIdContent(contentId);
+        List<Integer> ids = userRepository.findAllIds();
+        DuckyNotification dn = notificationRepository.save(notify);
+        List<UserNotification> notifications = new ArrayList<>();
+        for (Integer id : ids) {
+            UserNotification un = new UserNotification();
+            un.setId(new UserNotificationId(dn.getId(), id));
+            un.setIsSeen(1);
+            notifications.add(un);
+        }
+        userNotificationRepository.saveAll(notifications);
+    }
+
+    public List<DuckyNotification> getNotificationByUser(Integer id){
+        return userNotificationRepository.findAllByUserId(id);
+    }
+
+    public List<DuckyNotification> filterNotification(long startTime, long endTime, String keyWord){
+        return userNotificationRepository.filterNotification(startTime, endTime, keyWord);
     }
 }

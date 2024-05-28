@@ -23,10 +23,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RescueService {
-    private final RescueRepository rescueRepository;
     private final RescueCallRepository rescueCallRepository;
-    private final RescueStateRepository rescueStateRepository;
-    private final RescueTypeRepository rescueTypeRepository;
     private final SpecializationUserRepository specializationUserRepository;
     private final UserRescueCallRepository userRescueCallRepository;
     private final RescueDetailRepository rescueDetailRepository;
@@ -34,9 +31,6 @@ public class RescueService {
     private final NotificationService notificationService;
     private final UserActionRepository userActionRepository;
     private final ParticipateRepository participateRepository;
-
-//    Map<Integer, List<User>> draft = new HashMap<>();
-//    Map<Integer, List<RescueCall>> userWithRescue = new HashMap<>();
 
     public RescueCallResponseDto createRescueCall(Principal connectedUser, RescueCall rescueCall){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
@@ -80,13 +74,14 @@ public class RescueService {
     }
 
     public User finishWaiting(Integer rescueId) {
-        User u = participateRepository.findUserWithMinimumDistance(rescueId).orElse(null);
+        User u = participateRepository.findUserWithMinimumDistance(rescueId).orElse(new User());
         return u;
     }
 
-    public Boolean completeRescue(Integer rescueId) {
+    public User completeRescue(Integer rescueId) {
         participateRepository.updateIsFinishToTrueByRescueCallId(rescueId);
-        return true;
+        participateRepository.finishRescueCall(rescueId);
+        return rescueCallRepository.findCreateUserById(rescueId).orElse(null);
     }
 
     @Transactional

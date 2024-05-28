@@ -4,6 +4,7 @@ import com.thangkl2420.server_ducky.dto.post.PostLikeId;
 import com.thangkl2420.server_ducky.entity.post.Post;
 import com.thangkl2420.server_ducky.entity.post.PostLike;
 import com.thangkl2420.server_ducky.entity.user.User;
+import com.thangkl2420.server_ducky.repository.FollowingRepository;
 import com.thangkl2420.server_ducky.repository.PostLikeRepository;
 import com.thangkl2420.server_ducky.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.List;
 public class PostService {
     final private PostRepository repository;
     final private PostLikeRepository postLikeRepository;
+    final private FollowingRepository followingRepository;
 
     public List<Post> getAll(){
         return repository.findAllPost();
@@ -88,9 +90,15 @@ public class PostService {
         }
     }
 
-    public List<Post> getAllByFriend(Principal connectUser){
-        return repository.findAll();
+    public List<Post> getAllPostByIdUser(Integer id){
+        return repository.findPostById(id);
     }
 
+    public List<Post> getFollowersPost(Integer id){
+        return followingRepository.getAllFollowerPost(id);
+    }
 
+    public List<Post> filterPost(long startTime, long endTime, String keyWord){
+        return repository.filterPost(startTime, endTime, keyWord);
+    }
 }

@@ -51,4 +51,19 @@ public class PostController {
     ResponseEntity<Boolean> deletePost(@Param(value = "id") Integer id){
         return ResponseEntity.ok(service.deletePost(id));
     }
+
+    @GetMapping("/filter")
+    ResponseEntity<List<Post>> filterPost(@Param(value = "startTime") long startTime, @Param(value = "endTime") long endTime, @Param(value = "keyword") String keyword){
+        return ResponseEntity.ok(service.filterPost(startTime, endTime, keyword));
+    }
+
+    @GetMapping("/follower/{id}")
+    ResponseEntity<List<Post>> followerPost(@PathVariable(value = "id") Integer id){
+        return ResponseEntity.ok(service.getFollowersPost(id));
+    }
+
+    @GetMapping("/user/{id}")
+    ResponseEntity<List<Post>> userPost(@PathVariable(value = "id") Integer id){
+        return ResponseEntity.ok(service.getAllPostByIdUser(id));
+    }
 }

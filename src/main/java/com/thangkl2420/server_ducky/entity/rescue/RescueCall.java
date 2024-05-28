@@ -22,12 +22,12 @@ public class RescueCall {
     @JsonIgnore
     boolean isCreating;
     String description;
-//    String image;
-//    String video;
     double rating;
     double longitude;
     double latitude;
+    String addressDetail;
     Long timestamp;
+    boolean isFinish;
 
     @ElementCollection
     @CollectionTable(name = "rescue_images", joinColumns = @JoinColumn(name = "rescue_call_id"))

@@ -35,6 +35,11 @@ public interface ParticipateRepository extends JpaRepository<Participate, Partic
     @Query("UPDATE Participate p SET p.isFinish = true WHERE p.id.rescueCallId = :id")
     void updateIsFinishToTrueByRescueCallId(Integer id);
 
+    @Modifying
+    @Transactional
+    @Query("UPDATE RescueCall rc SET rc.isFinish = true WHERE rc.id = :id")
+    void finishRescueCall(Integer id);
+
     @Query("SELECT p.rescueCall FROM Participate p WHERE p.id.userId = :id AND p.isFinish = false ORDER BY p.distance DESC LIMIT 1")
     Optional<RescueCall> findMyCurrentRescueCall(Integer id);
 }

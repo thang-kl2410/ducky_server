@@ -51,6 +51,8 @@ public class User implements UserDetails {
   private int countWaitingMessage;
   @Column(nullable = false, columnDefinition = "int default 0")
   private int countWaitingNotification;
+  @Transient
+  public Boolean IsFollow;
 
   @Enumerated(EnumType.STRING)
   private Role role;

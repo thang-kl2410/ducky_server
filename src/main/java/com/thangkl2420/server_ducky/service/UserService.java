@@ -1,10 +1,13 @@
 package com.thangkl2420.server_ducky.service;
 
 import com.thangkl2420.server_ducky.dto.auth.ChangePasswordRequest;
+import com.thangkl2420.server_ducky.dto.user.FollowingId;
 import com.thangkl2420.server_ducky.dto.user.UpdateProfileRequest;
 import com.thangkl2420.server_ducky.entity.rescue.RescueCall;
+import com.thangkl2420.server_ducky.entity.user.Following;
 import com.thangkl2420.server_ducky.entity.user.User;
 import com.thangkl2420.server_ducky.entity.user.UserState;
+import com.thangkl2420.server_ducky.repository.FollowingRepository;
 import com.thangkl2420.server_ducky.repository.RescueDetailRepository;
 import com.thangkl2420.server_ducky.repository.UserRepository;
 import com.thangkl2420.server_ducky.repository.UserStateRepository;
@@ -26,6 +29,8 @@ public class UserService {
     private final UserRepository repository;
     private final UserStateRepository userStateRepository;
     private final RescueDetailRepository rescueDetailRepository;
+    private final FollowingRepository followingRepository;
+
     public User changePassword(ChangePasswordRequest request, Principal connectedUser) {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
@@ -118,5 +123,29 @@ public class UserService {
 
     public List<User> getAll(){
         return repository.findAll();
+    }
+
+    public User followUser(Principal connectedUser, Integer id){
+        var u = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        FollowingId fid = new FollowingId(id, u.getId());
+        Following f = new Following();
+        f.setId(fid);
+        followingRepository.save(f);
+        return repository.findById(id).orElse(new User());
+    }
+
+    public User cancelFollowUser(Principal connectedUser, Integer id){
+        var u = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        FollowingId fid = new FollowingId(id, u.getId());
+        followingRepository.deleteById(fid);
+        return repository.findById(id).orElse(new User());
+    }
+
+    public List<User> getFollowers(Integer id){
+        return followingRepository.getAllFollower(id);
+    }
+
+    public List<User> getWatchers(Integer id){
+        return followingRepository.getAllWatcher(id);
     }
 }

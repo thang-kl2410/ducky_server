@@ -85,4 +85,26 @@ public class UserController {
         List<User> users = service.getNearPeople(connectedUser);
         return ResponseEntity.ok(users);
     }
+
+    @GetMapping("/follower/{id}")
+    public ResponseEntity<User> follower(Principal connectedUser, @PathVariable(value = "id")Integer id){
+        return ResponseEntity.ok(service.followUser(connectedUser, id));
+    }
+
+    @DeleteMapping("/follower/{id}")
+    public ResponseEntity<User> cancelFollower(Principal connectedUser, @PathVariable(value = "id")Integer id){
+        return ResponseEntity.ok(service.cancelFollowUser(connectedUser, id));
+    }
+
+    @GetMapping("/get-followers/{id}")
+    public ResponseEntity<List<User>> getFollowers(@PathVariable(value = "id") Integer id){
+        List<User> users = service.getFollowers(id);
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/get-watchers/{id}")
+    public ResponseEntity<List<User>> getWatchers(@PathVariable(value = "id") Integer id){
+        List<User> users = service.getWatchers(id);
+        return ResponseEntity.ok(users);
+    }
 }

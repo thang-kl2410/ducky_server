@@ -17,6 +17,8 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
   @Query("SELECT u.idDevice FROM User u")
   List<String> findAllDeviceTokens();
+  @Query("SELECT u.id FROM User u")
+  List<Integer> findAllIds();
   @Query("SELECT u.idDevice FROM User u WHERE u.id = :id")
   Optional<String> findDeviceToken(Integer id);
   boolean existsByEmail(String email);
