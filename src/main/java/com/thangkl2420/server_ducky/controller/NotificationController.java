@@ -1,16 +1,20 @@
 package com.thangkl2420.server_ducky.controller;
 
-import com.thangkl2420.server_ducky.dto.NotificationRequest;
+import com.thangkl2420.server_ducky.dto.FilterRequest;
+import com.thangkl2420.server_ducky.dto.post.NotificationRequest;
+import com.thangkl2420.server_ducky.entity.user.DuckyNotification;
+import com.thangkl2420.server_ducky.entity.user.User;
 import com.thangkl2420.server_ducky.service.NotificationService;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.bind.annotation.*;
+
+import java.security.Principal;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/fcm")
@@ -44,5 +48,17 @@ public class NotificationController {
     public ResponseEntity<String> sendToAllUsers(@RequestBody NotificationRequest notificationRequest) {
         fcmService.sendNotificationToAllUsers(notificationRequest.getTitle(), notificationRequest.getBody());
         return ResponseEntity.status(HttpStatus.OK).body("Notification sent to all users successfully.");
+    }
+
+    @GetMapping("/notification")
+    public ResponseEntity<List<DuckyNotification>> getAllByUser(Principal connectedUser){
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        return ResponseEntity.ok(fcmService.getNotificationByUser(user.getId()));
+    }
+
+    @PostMapping("/filter")
+    public ResponseEntity<List<DuckyNotification>> filterNotification(@RequestBody FilterRequest request, Principal connectedUser){
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        return ResponseEntity.ok(fcmService.filterNotification(request, user.getId()));
     }
 }

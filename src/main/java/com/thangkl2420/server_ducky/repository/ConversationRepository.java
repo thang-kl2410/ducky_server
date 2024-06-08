@@ -1,8 +1,10 @@
 package com.thangkl2420.server_ducky.repository;
 
-import com.thangkl2420.server_ducky.entity.Conversation;
-import com.thangkl2420.server_ducky.entity.Message;
-import com.thangkl2420.server_ducky.entity.User;
+import com.thangkl2420.server_ducky.entity.chat.Conversation;
+import com.thangkl2420.server_ducky.entity.chat.Message;
+import com.thangkl2420.server_ducky.entity.user.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -10,8 +12,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ConversationRepository extends JpaRepository<Conversation, Integer> {
-    @Query(value = "select c.messages from Conversation c where c.id = :id ")
-    List<Message> findMessageById(Integer id);
+    @Query(value = "SELECT m FROM Message m WHERE m.conversation.id = :id AND m.timestamp <= :startTime ORDER BY m.timestamp DESC")
+    Page<Message> findMessageById(Integer id, long startTime, Pageable pageable);
+
     @Query("SELECT c FROM Conversation c " +
             "JOIN UserConversation uc1 ON c.id = uc1.id.conversationId " +
             "JOIN UserConversation uc2 ON c.id = uc2.id.conversationId " +

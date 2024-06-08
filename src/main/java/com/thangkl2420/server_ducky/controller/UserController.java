@@ -1,8 +1,8 @@
 package com.thangkl2420.server_ducky.controller;
 
-import com.thangkl2420.server_ducky.dto.ChangePasswordRequest;
-import com.thangkl2420.server_ducky.dto.UpdateProfileRequest;
-import com.thangkl2420.server_ducky.entity.User;
+import com.thangkl2420.server_ducky.dto.auth.ChangePasswordRequest;
+import com.thangkl2420.server_ducky.dto.user.UpdateProfileRequest;
+import com.thangkl2420.server_ducky.entity.user.User;
 import com.thangkl2420.server_ducky.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -20,12 +22,11 @@ public class UserController {
     private final UserService service;
 
     @PostMapping("change-password")
-    public ResponseEntity<?> changePassword(
+    public ResponseEntity<User> changePassword(
           @RequestBody ChangePasswordRequest request,
           Principal connectedUser
     ) {
-        service.changePassword(request, connectedUser);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(service.changePassword(request, connectedUser));
     }
 
     @GetMapping("/current-user")
@@ -37,37 +38,34 @@ public class UserController {
     }
 
     @GetMapping("/device-token")
-    public ResponseEntity<?> getDeviceToken(Principal connectedUser, @Param(value = "device_token") String deviceToken) {
-        service.saveDeviceToken(deviceToken, connectedUser);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<User> getDeviceToken(Principal connectedUser, @Param(value = "device_token") String deviceToken) {
+        return ResponseEntity.ok(service.saveDeviceToken(deviceToken, connectedUser));
     }
 
     @PostMapping("/update-profile")
-    public ResponseEntity<?> updateProfile(Principal connectedUser, @RequestBody UpdateProfileRequest request) {
-        service.updateProfile(request, connectedUser);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<User> updateProfile(Principal connectedUser, @RequestBody UpdateProfileRequest request) {
+        return ResponseEntity.ok( service.updateProfile(request, connectedUser));
     }
 
     @GetMapping("/update-state")
-    public ResponseEntity<?> updateState(Principal connectedUser, @Param(value = "state") Integer state){
-        service.updateState(state, connectedUser);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<User> updateState(Principal connectedUser, @Param(value = "state") Integer state){
+        return ResponseEntity.ok(service.updateState(state, connectedUser));
     }
 
     @GetMapping("/location")
-    public ResponseEntity<?> setLocation(
+    public ResponseEntity<User> setLocation(
             Principal connectedUser,
-            @Param(value = "longitude") double longitude,
-            @Param(value = "latitude") double latitude){
-        service.setLocation(longitude, latitude, connectedUser);
-        return ResponseEntity.ok().build();
+            @RequestParam(value = "longitude") double longitude,
+            @RequestParam(value = "latitude") double latitude) {
+        User user = service.setLocation(longitude, latitude, connectedUser);
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/id-user")
     public ResponseEntity<User> getById(
-            @Param(value = "id") Integer id
+            @Param(value = "id") Integer id, Principal connectedUser
     ){
-        User user = service.getById(id);
+        User user = service.getById(id, connectedUser);
         return ResponseEntity.ok(user);
     }
 
@@ -88,6 +86,28 @@ public class UserController {
     @GetMapping("/get-near-people")
     public ResponseEntity<List<User>> getNearPeople(Principal connectedUser){
         List<User> users = service.getNearPeople(connectedUser);
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/follower/{id}")
+    public ResponseEntity<User> follower(Principal connectedUser, @PathVariable(value = "id")Integer id){
+        return ResponseEntity.ok(service.followUser(connectedUser, id));
+    }
+
+    @DeleteMapping("/follower/{id}")
+    public ResponseEntity<User> cancelFollower(Principal connectedUser, @PathVariable(value = "id")Integer id){
+        return ResponseEntity.ok(service.cancelFollowUser(connectedUser, id));
+    }
+
+    @GetMapping("/get-followers/{id}")
+    public ResponseEntity<List<User>> getFollowers(@PathVariable(value = "id") Integer id){
+        List<User> users = service.getFollowers(id);
+        return ResponseEntity.ok(users);
+    }
+
+    @GetMapping("/get-watchers/{id}")
+    public ResponseEntity<List<User>> getWatchers(@PathVariable(value = "id") Integer id){
+        List<User> users = service.getWatchers(id);
         return ResponseEntity.ok(users);
     }
 }

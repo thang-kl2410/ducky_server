@@ -1,18 +1,18 @@
 package com.thangkl2420.server_ducky.controller;
 
-import com.thangkl2420.server_ducky.entity.Conversation;
-import com.thangkl2420.server_ducky.entity.Message;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.thangkl2420.server_ducky.dto.chat.MessageDto;
+import com.thangkl2420.server_ducky.entity.chat.Conversation;
+import com.thangkl2420.server_ducky.entity.chat.Message;
 import com.thangkl2420.server_ducky.service.ConversationService;
-import com.thangkl2420.server_ducky.service.MessageService;
+import com.thangkl2420.server_ducky.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
@@ -22,7 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MessageController {
     private final ConversationService conversationService;
-    private final MessageService messageService;
+    private final NotificationService notificationService;
 
     @GetMapping("/get-conversation-by-ids")
     public ResponseEntity<Conversation> getConversationByIds(
@@ -34,23 +34,29 @@ public class MessageController {
         return ResponseEntity.ok(conversationService.getConversationByIds(senderId, receiverId));
     }
 
-    @SendTo("/topic/{id}/greetings")
-    @MessageMapping("/hello/{id}")
-    public Message message(@DestinationVariable Integer id, Message message, Principal connectedUser) throws Exception {
+    @SendTo("/topic/{id}/chats")
+    @MessageMapping("/chats/{id}")
+    public MessageDto message(@DestinationVariable Integer id, MessageDto message, Principal connectedUser) throws Exception {
         conversationService.sendMessage(id, message, connectedUser);
-        Thread.sleep(500);
-
         return message;
     }
 
+
     @GetMapping("/conversation/id")
-    public ResponseEntity<List<Message>> getMessagesByIdConversation(@Param(value = "id") Integer id){
-        return ResponseEntity.ok(conversationService.getMessageByIdConversation(id));
+    public ResponseEntity<List<Message>> getMessagesByIdConversation(
+            @Param(value = "id") Integer id, @Param(value = "startTime") long startTime,
+            @Param(value = "pageIndex") Integer pageIndex, @Param(value = "pageSize") Integer pageSize
+    ){
+        return ResponseEntity.ok(conversationService.getMessageByIdConversation(id, startTime, pageIndex, pageSize));
     }
 
-    @GetMapping("/video-call/{idUser}/{chanelId}/{token}/")
-    public ResponseEntity<?> joinVideoCall(@Param(value = "idUser") Integer idUser, @Param(value = "chanelId") String chanelId, @Param(value = "token") String token){
-        messageService.joinVideoCallChanel(idUser, token, chanelId);
-        return ResponseEntity.ok().build();
+    @PostMapping("/rtc/create/{receiver}")
+    public ResponseEntity<String> createRoom(@PathVariable(value = "receiver") Integer receiver,@RequestBody String roomId, Principal connectedUser){
+        try {
+            notificationService.sendNotificationRtc(receiver, roomId,connectedUser);
+        } catch (FirebaseMessagingException e) {
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok(roomId);
     }
 }

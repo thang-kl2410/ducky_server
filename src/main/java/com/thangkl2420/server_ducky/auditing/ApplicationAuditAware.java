@@ -1,6 +1,6 @@
 package com.thangkl2420.server_ducky.auditing;
 
-import com.thangkl2420.server_ducky.entity.User;
+import com.thangkl2420.server_ducky.entity.user.User;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;

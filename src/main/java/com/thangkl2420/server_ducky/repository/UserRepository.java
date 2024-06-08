@@ -3,7 +3,7 @@ package com.thangkl2420.server_ducky.repository;
 import java.util.List;
 import java.util.Optional;
 
-import com.thangkl2420.server_ducky.entity.User;
+import com.thangkl2420.server_ducky.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -17,6 +17,10 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
   @Query("SELECT u.idDevice FROM User u")
   List<String> findAllDeviceTokens();
+  @Query("SELECT u.id FROM User u")
+  List<Integer> findAllIds();
   @Query("SELECT u.idDevice FROM User u WHERE u.id = :id")
   Optional<String> findDeviceToken(Integer id);
+  @Query("SELECT CASE WHEN COUNT(u) > 0 THEN true ELSE false END FROM User u WHERE u.email = :email")
+  boolean existsByEmail(@Param("email") String email);
 }

@@ -1,0 +1,45 @@
+  INSERT INTO user_state (id, state)
+  VALUES
+  (1, 'online'),
+  (2, 'offline');
+
+  INSERT INTO Rescue_type (id, name_rescue_type) VALUES
+	(1, 'animal'),
+	(2, 'fire'),
+	(3, 'child'),
+	(4, 'geographical'),
+	(5, 'medical'),
+	(6, 'transportation'),
+	(7, 'health'),
+	(8, 'maritime'),
+	(9, 'natural'),
+	(10, 'other');
+
+INSERT INTO rescue_personnel (id, code) VALUES
+(1, 'SINGLE'),
+(2, 'MULTIPLE');
+
+
+  INSERT INTO message_type (id, message_type)
+  VALUES
+  (1, 'text'),
+  (2, 'image'),
+  (3, 'audio'),
+  (4, 'video');
+
+    INSERT INTO Rescue_state (id, rescue_state)
+  VALUES
+  (1, 'creating'),
+  (2, 'waiting'),
+  (3, 'confirm'),
+  (4, 'coming'),
+  (5, 'finish'),
+  (6, 'cancel'),
+  (7, 'arrived');
+
+  INSERT INTO User_Action (id, action)
+    VALUES
+    (1, 'FREE'),
+    (2, 'WAITING'),
+    (3, 'PERFORM'),
+    (4, 'IN_DISTRESS');;

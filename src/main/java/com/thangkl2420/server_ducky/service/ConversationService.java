@@ -1,16 +1,18 @@
 package com.thangkl2420.server_ducky.service;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
-import com.thangkl2420.server_ducky.dto.ConversationDto;
-import com.thangkl2420.server_ducky.dto.UserConversationId;
-import com.thangkl2420.server_ducky.entity.Conversation;
-import com.thangkl2420.server_ducky.entity.Message;
-import com.thangkl2420.server_ducky.entity.User;
-import com.thangkl2420.server_ducky.entity.UserConversation;
-import com.thangkl2420.server_ducky.repository.ConversationRepository;
-import com.thangkl2420.server_ducky.repository.MessageRepository;
-import com.thangkl2420.server_ducky.repository.UserConversationRepository;
+import com.thangkl2420.server_ducky.dto.chat.ConversationDto;
+import com.thangkl2420.server_ducky.dto.chat.MessageDto;
+import com.thangkl2420.server_ducky.dto.chat.UserConversationId;
+import com.thangkl2420.server_ducky.entity.chat.Conversation;
+import com.thangkl2420.server_ducky.entity.chat.Message;
+import com.thangkl2420.server_ducky.entity.user.User;
+import com.thangkl2420.server_ducky.entity.chat.UserConversation;
+import com.thangkl2420.server_ducky.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -42,19 +44,23 @@ public class ConversationService {
                     if(lastMessage != null){
                         return new ConversationDto(conversation.getId(), otherUser, lastMessage);
                     } else {
-                        Message m = new Message();
-                        m.setTimestamp(Long.valueOf(0));
+                        Message m = new Message(null,null,null,Long.valueOf(0),1,null, null);
                         return new ConversationDto(conversation.getId(), otherUser, m);
                     }
                 })
                 .filter(Objects::nonNull)
+                .filter(conversationDto -> conversationDto.getLastMessage() != null)
+                .sorted(Comparator.comparing(c -> {
+                    Message lastMessage = c.getLastMessage();
+                    return lastMessage != null && lastMessage.getTimestamp() != null ? lastMessage.getTimestamp() : 0L;
+                }))
                 .collect(Collectors.toList());
-        Collections.sort(cvs, Comparator.comparing(c -> c.getLastMessage().getTimestamp()));
         return cvs;
     }
 
-    public List<Message> getMessageByIdConversation(Integer id){
-        return repository.findMessageById(id);
+    public List<Message> getMessageByIdConversation(Integer id, long startTime, Integer pageIndex, Integer pageSize){
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        return repository.findMessageById(id, startTime, pageable).getContent();
     }
 
     public Conversation getConversationByIds(Integer idUser1, Integer idUser2){
@@ -72,19 +78,25 @@ public class ConversationService {
         }
     }
 
-    public void sendMessage(Integer id, Message message, Principal connectedUser){
-        Conversation conversation = repository.findById(id).orElseThrow();
-        message.setConversation(conversation);
-        messageRepository.save(message);
+    public void sendMessage(Integer id, MessageDto message, Principal connectedUser){
+        Conversation conversation = Conversation.builder().id(id).build();
+
+        if(message.getIsDelete()){
+          messageRepository.deleteById(message.getMessage().getId());
+        } else {
+            Message mss = message.getMessage();
+            mss.setConversation(conversation);
+            messageRepository.save(mss);
+        }
 
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         User otherUser = repository.findUserInConversation(conversation.getId(), user.getId()).orElse(null);
         try {
-            if (otherUser != null) {
+            if (otherUser.getIdDevice() != null && !otherUser.getIdDevice().isEmpty() && !message.getIsDelete()) {
                 notificationService.sendFCMById(
                         otherUser.getId(),
                         user.getLastname(),
-                        message.getMessageType().getId() == 1 ? message.getContent() : "Hình ảnh",
+                        message.getMessage().getMessageType().getId() == 1 ? message.getMessage().getContent() : "Hình ảnh",
                         user.getId()
                 );
             }
@@ -103,4 +115,5 @@ public class ConversationService {
 //            // Hiển thị decryptedContent cho người dùng
 //        }
 //    }
+
 }

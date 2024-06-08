@@ -1,6 +1,6 @@
 package com.thangkl2420.server_ducky.service;
 
-import com.thangkl2420.server_ducky.entity.User;
+import com.thangkl2420.server_ducky.entity.user.User;
 import com.thangkl2420.server_ducky.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;

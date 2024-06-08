@@ -1,13 +1,17 @@
 package com.thangkl2420.server_ducky.service;
 
-import com.thangkl2420.server_ducky.dto.PostLikeId;
-import com.thangkl2420.server_ducky.entity.Post;
-import com.thangkl2420.server_ducky.entity.PostLike;
-import com.thangkl2420.server_ducky.entity.User;
+import com.thangkl2420.server_ducky.dto.FilterRequest;
+import com.thangkl2420.server_ducky.dto.post.PostLikeId;
+import com.thangkl2420.server_ducky.entity.post.Post;
+import com.thangkl2420.server_ducky.entity.post.PostLike;
+import com.thangkl2420.server_ducky.entity.user.User;
+import com.thangkl2420.server_ducky.repository.FollowingRepository;
 import com.thangkl2420.server_ducky.repository.PostLikeRepository;
 import com.thangkl2420.server_ducky.repository.PostRepository;
-import com.thangkl2420.server_ducky.repository.RescueRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
@@ -19,18 +23,21 @@ import java.util.List;
 public class PostService {
     final private PostRepository repository;
     final private PostLikeRepository postLikeRepository;
+    final private FollowingRepository followingRepository;
 
-    public List<Post> getAll(){
-        return repository.findAllPost();
+    public Page<Post> getAll(FilterRequest request){
+        Pageable pageable = PageRequest.of(request.getPageIndex(),request.getPageSize());
+        return repository.filterPost(request.getStartTime(), request.getEndTime(), request.getKeyword(), pageable);
     }
 
-    public List<Post> getAllMyPost(Principal connectedUser){
-        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        return repository.findPostById(user.getId());
+    public List<Post> getPostByUser(Integer id, Integer pageIndex, Integer pageSize){
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        return repository.findPostById(id, pageable).getContent();
     }
 
-    public List<Post> getComments(Integer idPost){
-        return repository.findCommentPost(idPost);
+    public List<Post> getComments(Integer idPost, Integer pageIndex, Integer pageSize){
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        return repository.findCommentPost(idPost, pageable).getContent();
     }
 
     public void handleLike(Integer idPost, Principal connectedUser){
@@ -44,25 +51,26 @@ public class PostService {
         }
     }
 
-    public void createPost(Post post, Principal connectedUser){
+    public Post createPost(Post post, Principal connectedUser){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         post.setUser(user);
         post.setIsComment(0);
-        repository.save(post);
+        return repository.save(post);
     }
 
-    public void comment(Post post, Integer parentPostId, Principal connectedUser){
+    public Post comment(Post post, Integer parentPostId, Principal connectedUser){
         Post parent = repository.findById(parentPostId).orElse(null);
         if(parent != null){
             var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
             post.setUser(user);
             post.setIsComment(1);
             post.setParentPost(parent);
-            repository.save(post);
+            return repository.save(post);
         }
+        return null;
     }
 
-    public void updatePost(Post post){
+    public Post updatePost(Post post){
         Post p = repository.findById(post.getId()).orElseThrow(null);
         if(p != null){
             p.setUser(post.getUser());
@@ -73,18 +81,29 @@ public class PostService {
             p.setChildrenPosts(post.getChildrenPosts());
             p.setTimestamp(post.getTimestamp());
             p.setResources(post.getResources());
-            repository.save(p);
+            return repository.save(p);
+        }
+        return null;
+    }
+
+    public boolean deletePost(Integer id){
+        //Xóa resource trước
+        try{
+            repository.deleteById(id);
+            return true;
+        } catch (Exception e){
+            return false;
         }
     }
 
-    public void deletePost(Integer id){
-        //Xóa resource trước
-        repository.deleteById(id);
+    public List<Post> getAllPostByIdUser(Integer id, Integer pageIndex, Integer pageSize){
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        return repository.findPostById(id, pageable).getContent();
     }
 
-    public List<Post> getAllByFriend(Principal connectUser){
-        return repository.findAll();
+    public List<Post> getFollowersPost(Principal connectedUser, Integer pageIndex, Integer pageSize){
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        return followingRepository.getAllFollowerPost(user.getId(), pageable).getContent();
     }
-
-
 }
