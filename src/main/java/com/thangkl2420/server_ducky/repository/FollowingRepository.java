@@ -19,6 +19,6 @@ public interface FollowingRepository extends JpaRepository<Following, FollowingI
 
     @Query("SELECT p " +
             "FROM Following f JOIN Post p ON p.user.id = f.follower.id " +
-            "WHERE f.id.userId = :id")
+            "WHERE f.id.userId = :id AND p.isComment = 0 ORDER BY p.timestamp DESC")
     Page<Post> getAllFollowerPost(Integer id, Pageable pageable);
 }

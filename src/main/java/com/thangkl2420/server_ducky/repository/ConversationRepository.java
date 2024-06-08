@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ConversationRepository extends JpaRepository<Conversation, Integer> {
-    @Query(value = "select m from Message m WHERE m.conversation.id = :id AND m.timestamp >= :startTime")
+    @Query(value = "SELECT m FROM Message m WHERE m.conversation.id = :id AND m.timestamp <= :startTime ORDER BY m.timestamp DESC")
     Page<Message> findMessageById(Integer id, long startTime, Pageable pageable);
 
     @Query("SELECT c FROM Conversation c " +

@@ -1,5 +1,6 @@
 package com.thangkl2420.server_ducky.controller;
 
+import com.thangkl2420.server_ducky.dto.FilterRequest;
 import com.thangkl2420.server_ducky.dto.post.NotificationRequest;
 import com.thangkl2420.server_ducky.entity.user.DuckyNotification;
 import com.thangkl2420.server_ducky.entity.user.User;
@@ -55,8 +56,9 @@ public class NotificationController {
         return ResponseEntity.ok(fcmService.getNotificationByUser(user.getId()));
     }
 
-    @GetMapping("/filter")
-    public ResponseEntity<List<DuckyNotification>> filterNotification(@Param(value = "startTime") long startTime, @Param(value = "endTime") long endTime, @Param(value = "keyword") String keyword){
-        return ResponseEntity.ok(fcmService.filterNotification(startTime, endTime, keyword));
+    @PostMapping("/filter")
+    public ResponseEntity<List<DuckyNotification>> filterNotification(@RequestBody FilterRequest request, Principal connectedUser){
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        return ResponseEntity.ok(fcmService.filterNotification(request, user.getId()));
     }
 }

@@ -52,8 +52,7 @@ public class RescueService {
                     .filter(u -> calculateDistance(u.getLatitude(), u.getLongitude(), user.getLatitude(), user.getLongitude()) < 15)
                     .limit(20)
                     .collect(Collectors.toList());
-            UserAction ua = new UserAction();
-            ua.setId(4);
+            UserAction ua = new UserAction(4, null, null);
             user.setUserAction(ua);
             userRepository.save(user);
             return new RescueCallResponseDto(savedRescueCall, temp);

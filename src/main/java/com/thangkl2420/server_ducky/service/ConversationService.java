@@ -2,6 +2,7 @@ package com.thangkl2420.server_ducky.service;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.thangkl2420.server_ducky.dto.chat.ConversationDto;
+import com.thangkl2420.server_ducky.dto.chat.MessageDto;
 import com.thangkl2420.server_ducky.dto.chat.UserConversationId;
 import com.thangkl2420.server_ducky.entity.chat.Conversation;
 import com.thangkl2420.server_ducky.entity.chat.Message;
@@ -49,8 +50,11 @@ public class ConversationService {
                 })
                 .filter(Objects::nonNull)
                 .filter(conversationDto -> conversationDto.getLastMessage() != null)
+                .sorted(Comparator.comparing(c -> {
+                    Message lastMessage = c.getLastMessage();
+                    return lastMessage != null && lastMessage.getTimestamp() != null ? lastMessage.getTimestamp() : 0L;
+                }))
                 .collect(Collectors.toList());
-        Collections.sort(cvs, Comparator.comparing(c -> c.getLastMessage().getTimestamp()));
         return cvs;
     }
 
@@ -74,19 +78,25 @@ public class ConversationService {
         }
     }
 
-    public void sendMessage(Integer id, Message message, Principal connectedUser){
-        Conversation conversation = repository.findById(id).orElseThrow();
-        message.setConversation(conversation);
-        messageRepository.save(message);
+    public void sendMessage(Integer id, MessageDto message, Principal connectedUser){
+        Conversation conversation = Conversation.builder().id(id).build();
+
+        if(message.getIsDelete()){
+          messageRepository.deleteById(message.getMessage().getId());
+        } else {
+            Message mss = message.getMessage();
+            mss.setConversation(conversation);
+            messageRepository.save(mss);
+        }
 
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         User otherUser = repository.findUserInConversation(conversation.getId(), user.getId()).orElse(null);
         try {
-            if (otherUser.getIdDevice() != null && !otherUser.getIdDevice().isEmpty()) {
+            if (otherUser.getIdDevice() != null && !otherUser.getIdDevice().isEmpty() && !message.getIsDelete()) {
                 notificationService.sendFCMById(
                         otherUser.getId(),
                         user.getLastname(),
-                        message.getMessageType().getId() == 1 ? message.getContent() : "Hình ảnh",
+                        message.getMessage().getMessageType().getId() == 1 ? message.getMessage().getContent() : "Hình ảnh",
                         user.getId()
                 );
             }

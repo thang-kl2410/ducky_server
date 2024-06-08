@@ -1,6 +1,7 @@
 package com.thangkl2420.server_ducky.service;
 
 import com.google.firebase.messaging.*;
+import com.thangkl2420.server_ducky.dto.FilterRequest;
 import com.thangkl2420.server_ducky.dto.user.UserNotificationId;
 import com.thangkl2420.server_ducky.entity.rescue.RescueCall;
 import com.thangkl2420.server_ducky.entity.user.DuckyNotification;
@@ -10,6 +11,8 @@ import com.thangkl2420.server_ducky.repository.NotificationRepository;
 import com.thangkl2420.server_ducky.repository.UserNotificationRepository;
 import com.thangkl2420.server_ducky.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
@@ -218,22 +221,25 @@ public class NotificationService {
         notify.setType(type);
         notify.setIdContent(contentId);
         List<Integer> ids = userRepository.findAllIds();
-        DuckyNotification dn = notificationRepository.save(notify);
-        List<UserNotification> notifications = new ArrayList<>();
-        for (Integer id : ids) {
-            UserNotification un = new UserNotification();
-            un.setId(new UserNotificationId(dn.getId(), id));
-            un.setIsSeen(1);
-            notifications.add(un);
+        if(ids.size() != 0){
+            DuckyNotification dn = notificationRepository.save(notify);
+            List<UserNotification> notifications = new ArrayList<>();
+            for (Integer id : ids) {
+                UserNotification un = new UserNotification();
+                un.setId(new UserNotificationId(dn.getId(), id));
+                un.setIsSeen(1);
+                notifications.add(un);
+            }
+            userNotificationRepository.saveAll(notifications);
         }
-        userNotificationRepository.saveAll(notifications);
     }
 
     public List<DuckyNotification> getNotificationByUser(Integer id){
         return userNotificationRepository.findAllByUserId(id);
     }
 
-    public List<DuckyNotification> filterNotification(long startTime, long endTime, String keyWord){
-        return userNotificationRepository.filterNotification(startTime, endTime, keyWord);
+    public List<DuckyNotification> filterNotification(FilterRequest request, Integer id){
+        Pageable pageable = PageRequest.of(request.getPageIndex(), request.getPageSize());
+        return userNotificationRepository.filterNotification(pageable, request.getStartTime(), request.getEndTime(), request.getKeyword(), id).getContent();
     }
 }

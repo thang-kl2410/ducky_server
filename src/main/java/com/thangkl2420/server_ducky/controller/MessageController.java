@@ -1,6 +1,7 @@
 package com.thangkl2420.server_ducky.controller;
 
 import com.google.firebase.messaging.FirebaseMessagingException;
+import com.thangkl2420.server_ducky.dto.chat.MessageDto;
 import com.thangkl2420.server_ducky.entity.chat.Conversation;
 import com.thangkl2420.server_ducky.entity.chat.Message;
 import com.thangkl2420.server_ducky.service.ConversationService;
@@ -35,7 +36,7 @@ public class MessageController {
 
     @SendTo("/topic/{id}/chats")
     @MessageMapping("/chats/{id}")
-    public Message message(@DestinationVariable Integer id, Message message, Principal connectedUser) throws Exception {
+    public MessageDto message(@DestinationVariable Integer id, MessageDto message, Principal connectedUser) throws Exception {
         conversationService.sendMessage(id, message, connectedUser);
         return message;
     }
