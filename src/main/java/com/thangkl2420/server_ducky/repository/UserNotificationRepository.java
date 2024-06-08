@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import java.util.List;
 
 public interface UserNotificationRepository extends JpaRepository<UserNotification, UserNotificationId> {
-    @Query("SELECT un.notification FROM UserNotification un WHERE un.id.userId = :id")
+    @Query("SELECT un.notification FROM UserNotification un WHERE un.id.userId = :id ORDER BY un.notification.timestamp DESC")
     List<DuckyNotification> findAllByUserId(Integer id);
 
     @Query("SELECT n FROM DuckyNotification n WHERE " +

@@ -47,14 +47,14 @@ public class DuckyApplication {
 //					.password("123456")
 //					.role(MANAGER)
 //					.build();
-//			System.out.println("Manager token: " + service.register(manager).getAccessToken());
-			UserAction ua = userActionRepository.getById(1);
-			List<User> users = repository.findAll();
-			users.stream().map(u -> {
-				u.setUserAction(ua);
-				return u;
-			}).collect(Collectors.toList());
-			repository.saveAll(users);
+////			System.out.println("Manager token: " + service.register(manager).getAccessToken());
+//			UserAction ua = userActionRepository.getById(1);
+//			List<User> users = repository.findAll();
+//			users.stream().map(u -> {
+//				u.setUserAction(ua);
+//				return u;
+//			}).collect(Collectors.toList());
+//			repository.saveAll(users);
 		};
 	}
 }

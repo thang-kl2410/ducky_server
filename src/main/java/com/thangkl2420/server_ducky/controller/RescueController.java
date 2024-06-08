@@ -78,8 +78,8 @@ public class RescueController {
     }
 
     @GetMapping("/finish-rescue/{id}")
-    public ResponseEntity<User> finishRescue(@PathVariable(value = "id") Integer id){
-        User user = service.finishWaiting(id);
+    public ResponseEntity<User> finishRescue(@PathVariable(value = "id" ) Integer id, Principal connectedUser){
+        User user = service.finishWaiting(id, connectedUser);
         try {
             notificationService.sendFCMFinishRescue(user.getIdDevice(), id, user.getId());
         } catch (FirebaseMessagingException e) {

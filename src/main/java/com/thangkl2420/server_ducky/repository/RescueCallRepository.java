@@ -21,6 +21,9 @@ public interface RescueCallRepository extends JpaRepository<RescueCall, Integer>
     @Query("SELECT urc.user FROM UserRescueCall urc WHERE urc.id.rescueCallId = :id AND urc.isCreator = true ORDER BY urc.isCreator DESC LIMIT 1")
     Optional<User> findCreateUserById(Integer id);
 
+    @Query("SELECT p.user FROM Participate p WHERE p.rescueCall.id = :id")
+    Optional<User> findRescuerById(Integer id);
+
     @Query("SELECT urc.rescueCall FROM UserRescueCall urc WHERE urc.id.userId = :id AND urc.isCreator = true")
     List<RescueCall> findRescueCallById(Integer id);
 }

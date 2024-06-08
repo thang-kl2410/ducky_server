@@ -7,7 +7,6 @@ import com.thangkl2420.server_ducky.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -24,11 +23,19 @@ public interface ParticipateRepository extends JpaRepository<Participate, Partic
             "WHERE r.id = :id AND su.user.idDevice IS NOT NULL)")
     List<User> findFreeUsers(Integer id);
 
-    @Query("SELECT p.user FROM Participate p WHERE p.id.rescueCallId = :id")
-    List<User> findParticipateUsers(Integer id);
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.userAction.id = 1 " +
+            "WHERE u.id IN (SELECT p.user.id FROM Participate p WHERE p.id.rescueCallId = :id)")
+    void finishParticipateUsers(Integer id);
 
     @Query("SELECT p.user FROM Participate p WHERE p.distance = (SELECT MIN(p2.distance) FROM Participate p2) AND p.id.rescueCallId = :id")
     Optional<User> findUserWithMinimumDistance(Integer id);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Participate p WHERE p.id.rescueCallId = :id AND p.user.id != :rescuer")
+    void deleteUserParticipate(Integer id, Integer rescuer);
 
     @Modifying
     @Transactional
@@ -40,6 +47,17 @@ public interface ParticipateRepository extends JpaRepository<Participate, Partic
     @Query("UPDATE RescueCall rc SET rc.isFinish = true WHERE rc.id = :id")
     void finishRescueCall(Integer id);
 
-    @Query("SELECT p.rescueCall FROM Participate p WHERE p.id.userId = :id AND p.isFinish = false ORDER BY p.distance DESC LIMIT 1")
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.userAction.id = 1 " +
+            "WHERE u.id IN (SELECT p.user.id FROM Participate p WHERE p.id.rescueCallId = :id AND u.userAction.id != 1)")
+    void updateUserParticipate(Integer id);
+
+    @Query("SELECT p.rescueCall FROM Participate p " +
+            "WHERE p.id.userId = :id AND p.isFinish = false ORDER BY p.distance DESC LIMIT 1")
     Optional<RescueCall> findMyCurrentRescueCall(Integer id);
+
+    @Query("SELECT urc.rescueCall FROM UserRescueCall urc " +
+            "WHERE urc.id.userId = :id AND urc.rescueCall.isFinish = false ORDER BY urc.id DESC LIMIT 1")
+    Optional<RescueCall> findMyCurrentRescueCall2(Integer id);
 }

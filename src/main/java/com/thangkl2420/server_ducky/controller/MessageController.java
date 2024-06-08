@@ -42,8 +42,11 @@ public class MessageController {
 
 
     @GetMapping("/conversation/id")
-    public ResponseEntity<List<Message>> getMessagesByIdConversation(@Param(value = "id") Integer id){
-        return ResponseEntity.ok(conversationService.getMessageByIdConversation(id));
+    public ResponseEntity<List<Message>> getMessagesByIdConversation(
+            @Param(value = "id") Integer id, @Param(value = "startTime") long startTime,
+            @Param(value = "pageIndex") Integer pageIndex, @Param(value = "pageSize") Integer pageSize
+    ){
+        return ResponseEntity.ok(conversationService.getMessageByIdConversation(id, startTime, pageIndex, pageSize));
     }
 
     @PostMapping("/rtc/create/{receiver}")

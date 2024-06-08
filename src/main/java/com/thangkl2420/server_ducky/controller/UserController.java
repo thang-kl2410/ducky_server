@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -53,16 +55,17 @@ public class UserController {
     @GetMapping("/location")
     public ResponseEntity<User> setLocation(
             Principal connectedUser,
-            @Param(value = "longitude") double longitude,
-            @Param(value = "latitude") double latitude){
-        return ResponseEntity.ok(service.setLocation(longitude, latitude, connectedUser));
+            @RequestParam(value = "longitude") double longitude,
+            @RequestParam(value = "latitude") double latitude) {
+        User user = service.setLocation(longitude, latitude, connectedUser);
+        return ResponseEntity.ok(user);
     }
 
     @GetMapping("/id-user")
     public ResponseEntity<User> getById(
-            @Param(value = "id") Integer id
+            @Param(value = "id") Integer id, Principal connectedUser
     ){
-        User user = service.getById(id);
+        User user = service.getById(id, connectedUser);
         return ResponseEntity.ok(user);
     }
 

@@ -17,10 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -69,15 +66,14 @@ public class AuthenticationController {
   }
 
   @PostMapping("/reset-password")
-  public ResponseEntity<ApiResponse<Boolean>> resetPassword(
+  public ResponseEntity<Boolean> resetPassword(
           @RequestBody ResetPasswordRequest request
   ) {
     try{
       Boolean isExits = service.isEmailExist(request.getEmail());
       if(isExits){
         Boolean isOke = service.resetPassword(request);
-        ApiResponse<Boolean> response = new ApiResponse<>(LocalDateTime.now(), HttpStatus.OK.value(), "Thành công", isOke, 1);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(isOke);
       } else {
         throw new InternalServerErrorException("Email is not registered!");
       }
@@ -86,12 +82,11 @@ public class AuthenticationController {
     }
   }
 
-  @PostMapping("/email-exist")
-  public ResponseEntity<ApiResponse<Boolean>> isEmailExist(@Param(value = "email") String email) {
+  @GetMapping("/email-exist")
+  public ResponseEntity<Boolean> isEmailExist(@Param(value = "email") String email) {
     try{
       Boolean isOke = service.isEmailExist(email);
-      ApiResponse<Boolean> response = new ApiResponse<>(LocalDateTime.now(), HttpStatus.OK.value(), "Thành công", isOke, 1);
-      return ResponseEntity.ok(response);
+      return ResponseEntity.ok(isOke);
     } catch (Exception e){
       throw new InternalServerErrorException("Lỗi xử lý: " + e.getMessage());
     }

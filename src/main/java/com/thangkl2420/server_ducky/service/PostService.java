@@ -1,5 +1,6 @@
 package com.thangkl2420.server_ducky.service;
 
+import com.thangkl2420.server_ducky.dto.FilterRequest;
 import com.thangkl2420.server_ducky.dto.post.PostLikeId;
 import com.thangkl2420.server_ducky.entity.post.Post;
 import com.thangkl2420.server_ducky.entity.post.PostLike;
@@ -8,6 +9,9 @@ import com.thangkl2420.server_ducky.repository.FollowingRepository;
 import com.thangkl2420.server_ducky.repository.PostLikeRepository;
 import com.thangkl2420.server_ducky.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
@@ -21,17 +25,19 @@ public class PostService {
     final private PostLikeRepository postLikeRepository;
     final private FollowingRepository followingRepository;
 
-    public List<Post> getAll(){
-        return repository.findAllPost();
+    public Page<Post> getAll(FilterRequest request){
+        Pageable pageable = PageRequest.of(request.getPageIndex(),request.getPageSize());
+        return repository.filterPost(request.getStartTime(), request.getEndTime(), request.getKeyword(), pageable);
     }
 
-    public List<Post> getAllMyPost(Principal connectedUser){
-        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        return repository.findPostById(user.getId());
+    public List<Post> getPostByUser(Integer id, Integer pageIndex, Integer pageSize){
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        return repository.findPostById(id, pageable).getContent();
     }
 
-    public List<Post> getComments(Integer idPost){
-        return repository.findCommentPost(idPost);
+    public List<Post> getComments(Integer idPost, Integer pageIndex, Integer pageSize){
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        return repository.findCommentPost(idPost, pageable).getContent();
     }
 
     public void handleLike(Integer idPost, Principal connectedUser){
@@ -90,15 +96,14 @@ public class PostService {
         }
     }
 
-    public List<Post> getAllPostByIdUser(Integer id){
-        return repository.findPostById(id);
+    public List<Post> getAllPostByIdUser(Integer id, Integer pageIndex, Integer pageSize){
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        return repository.findPostById(id, pageable).getContent();
     }
 
-    public List<Post> getFollowersPost(Integer id){
-        return followingRepository.getAllFollowerPost(id);
-    }
-
-    public List<Post> filterPost(long startTime, long endTime, String keyWord){
-        return repository.filterPost(startTime, endTime, keyWord);
+    public List<Post> getFollowersPost(Principal connectedUser, Integer pageIndex, Integer pageSize){
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        return followingRepository.getAllFollowerPost(user.getId(), pageable).getContent();
     }
 }

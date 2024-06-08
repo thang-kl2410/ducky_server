@@ -9,6 +9,9 @@ import com.thangkl2420.server_ducky.entity.user.User;
 import com.thangkl2420.server_ducky.entity.chat.UserConversation;
 import com.thangkl2420.server_ducky.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,8 +30,6 @@ public class ConversationService {
 
     private final BCryptPasswordEncoder encoder;
 
-    Map<String, String> sdpData = new HashMap<>();
-
     public List<ConversationDto> getAllConversation(Principal connectedUser){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         List<Conversation> conversations = userConversationRepository.findAllByUser(user.getId());
@@ -42,8 +43,7 @@ public class ConversationService {
                     if(lastMessage != null){
                         return new ConversationDto(conversation.getId(), otherUser, lastMessage);
                     } else {
-                        Message m = new Message();
-                        m.setTimestamp(Long.valueOf(0));
+                        Message m = new Message(null,null,null,Long.valueOf(0),1,null, null);
                         return new ConversationDto(conversation.getId(), otherUser, m);
                     }
                 })
@@ -54,8 +54,9 @@ public class ConversationService {
         return cvs;
     }
 
-    public List<Message> getMessageByIdConversation(Integer id){
-        return repository.findMessageById(id);
+    public List<Message> getMessageByIdConversation(Integer id, long startTime, Integer pageIndex, Integer pageSize){
+        Pageable pageable = PageRequest.of(pageIndex, pageSize);
+        return repository.findMessageById(id, startTime, pageable).getContent();
     }
 
     public Conversation getConversationByIds(Integer idUser1, Integer idUser2){

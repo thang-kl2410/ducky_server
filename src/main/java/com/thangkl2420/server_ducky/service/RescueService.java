@@ -52,7 +52,10 @@ public class RescueService {
                     .filter(u -> calculateDistance(u.getLatitude(), u.getLongitude(), user.getLatitude(), user.getLongitude()) < 15)
                     .limit(20)
                     .collect(Collectors.toList());
-
+            UserAction ua = new UserAction();
+            ua.setId(4);
+            user.setUserAction(ua);
+            userRepository.save(user);
             return new RescueCallResponseDto(savedRescueCall, temp);
         } else {
             List<User> users = userRepository.findAll();
@@ -62,7 +65,8 @@ public class RescueService {
 
     public Boolean confirmParticipate(Integer rescueId, Principal connectedUser, double distance){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        UserAction ua = userActionRepository.getById(3);
+        UserAction ua = new UserAction();
+        ua.setId(2);
         user.setUserAction(ua);
         userRepository.save(user);
         Participate p = new Participate();
@@ -73,15 +77,32 @@ public class RescueService {
         return true;
     }
 
-    public User finishWaiting(Integer rescueId) {
+    public User finishWaiting(Integer rescueId, Principal connectedUser) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         User u = participateRepository.findUserWithMinimumDistance(rescueId).orElse(new User());
+        if(u.getId() != null){
+            participateRepository.deleteUserParticipate(rescueId, u.getId());
+            participateRepository.finishParticipateUsers(rescueId);
+            UserAction ua = new UserAction();
+            ua.setId(3);
+            u.setUserAction(ua);
+            userRepository.save(u);
+        }
         return u;
     }
 
     public User completeRescue(Integer rescueId) {
         participateRepository.updateIsFinishToTrueByRescueCallId(rescueId);
         participateRepository.finishRescueCall(rescueId);
-        return rescueCallRepository.findCreateUserById(rescueId).orElse(null);
+        participateRepository.updateUserParticipate(rescueId);
+        User u = rescueCallRepository.findCreateUserById(rescueId).orElse(null);
+        if(u != null){
+            UserAction ua = new UserAction();
+            ua.setId(1);
+            u.setUserAction(ua);
+            userRepository.save(u);
+        }
+        return u;
     }
 
     @Transactional
@@ -146,16 +167,25 @@ public class RescueService {
     }
 
     public RescueCallDto getRescueCallDetailById(Integer id){
-        RescueCall call = rescueCallRepository.findById(id).orElseThrow(null);
-        User user = rescueCallRepository.findCreateUserById(id).orElseThrow(null);
-        return new RescueCallDto(call, user);
+        RescueCall call = rescueCallRepository.findById(id).orElse(new RescueCall());
+        User user = rescueCallRepository.findCreateUserById(id).orElse(new User());
+        User rescuer = rescueCallRepository.findRescuerById(id).orElse(new User());
+        return new RescueCallDto(call, user, rescuer);
     }
 
     public RescueCallDto getCurrentRescueCallDetail(Principal connectedUser){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        RescueCall rc = participateRepository.findMyCurrentRescueCall(user.getId()).orElse(new RescueCall());
-        User userCreated = rescueCallRepository.findCreateUserById(rc.getId()).orElse(new User());
-        return new RescueCallDto(rc, userCreated);
+        if(user.getUserAction().getId() == 3){
+            RescueCall rc = participateRepository.findMyCurrentRescueCall(user.getId()).orElse(new RescueCall());
+            User userCreated = rescueCallRepository.findCreateUserById(rc.getId()).orElse(new User());
+            return new RescueCallDto(rc, userCreated, user);
+        } else if(user.getUserAction().getId() == 4){
+            RescueCall rc = participateRepository.findMyCurrentRescueCall2(user.getId()).orElse(new RescueCall());
+            User rescuer = rescueCallRepository.findRescuerById(rc.getId()).orElse(new User());
+            return new RescueCallDto(rc, user, rescuer);
+        } else {
+            return new RescueCallDto();
+        }
     }
 
     public List<RescueCall> getMyCurrentRescueCallDetail(Principal connectedUser){

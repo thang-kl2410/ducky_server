@@ -81,8 +81,16 @@ public class UserService {
         return repository.save(user);
     }
 
-    public User getById(Integer id){
+    public User getById(Integer id, Principal connectedUser){
+        User current = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         User user = repository.findById(id).orElse(null);
+        FollowingId fli = new FollowingId(id, current.getId());
+        Following following = followingRepository.findById(fli).orElse(null);
+        if(following == null){
+            user.setIsFollow(false);
+        } else {
+            user.setIsFollow(true);
+        }
         return  user;
     }
 
@@ -131,14 +139,14 @@ public class UserService {
         Following f = new Following();
         f.setId(fid);
         followingRepository.save(f);
-        return repository.findById(id).orElse(new User());
+        return getById(id, connectedUser);
     }
 
     public User cancelFollowUser(Principal connectedUser, Integer id){
         var u = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         FollowingId fid = new FollowingId(id, u.getId());
         followingRepository.deleteById(fid);
-        return repository.findById(id).orElse(new User());
+        return getById(id, connectedUser);
     }
 
     public List<User> getFollowers(Integer id){

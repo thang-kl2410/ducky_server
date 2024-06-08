@@ -12,4 +12,5 @@ import lombok.*;
 public class RescueCallDto {
     private RescueCall rescueCall;
     private User createUser;
+    private User rescuer;
 }

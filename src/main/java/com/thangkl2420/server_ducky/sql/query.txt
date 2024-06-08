@@ -41,4 +41,5 @@ INSERT INTO rescue_personnel (id, code) VALUES
     VALUES
     (1, 'FREE'),
     (2, 'WAITING'),
-    (3, 'PERFORM');
+    (3, 'PERFORM'),
+    (4, 'IN_DISTRESS');;
