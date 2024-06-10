@@ -98,23 +98,24 @@ public class RescueService {
         return new User();
     }
 
+//    DELETE FROM USER_NOTIFICATION un WHERE un.user_id IN (SELECT u.id FROM _USER u WHERE u.EMAIL IS NULL);
+//    DELETE FROM _USER u WHERE u.EMAIL IS NULL;
     public User completeRescue(Integer rescueId) {
         participateRepository.updateIsFinishToTrueByRescueCallId(rescueId);
         participateRepository.finishRescueCall(rescueId);
         participateRepository.updateUserParticipate(rescueId);
         User u = rescueCallRepository.findCreateUserById(rescueId).orElse(null);
-        if(u != null){
-            UserAction ua = new UserAction();
-            ua.setId(1);
+        if(u.getEmail() != null){
+            UserAction ua = new UserAction(1, null, null);
             u.setUserAction(ua);
-            userRepository.save(u);
+            u = userRepository.save(u);
         }
         return u;
     }
 
     public User completeRescue2(Integer id){
         User u = rescueCallRepository.findRescuerById(id).orElse(new User());
-        if(u != null){
+        if(u.getEmail() != null){
             UserAction ua = new UserAction();
             ua.setId(1);
             u.setUserAction(ua);
@@ -197,7 +198,7 @@ public class RescueService {
             RescueCall rc = participateRepository.findMyCurrentRescueCall(user.getId()).orElse(new RescueCall());
             User userCreated = rescueCallRepository.findCreateUserById(rc.getId()).orElse(new User());
             return new RescueCallDto(rc, userCreated, user);
-        } else if(user.getUserAction().getId() == 4){
+        } else if(user.getUserAction().getId() == 4 || user.getUserAction().getId() == 2){
             RescueCall rc = participateRepository.findMyCurrentRescueCall2(user.getId()).orElse(new RescueCall());
             User rescuer = rescueCallRepository.findRescuerById(rc.getId()).orElse(new User());
             return new RescueCallDto(rc, user, rescuer);
