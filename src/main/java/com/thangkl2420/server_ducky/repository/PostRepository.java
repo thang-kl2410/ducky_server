@@ -4,7 +4,9 @@ import com.thangkl2420.server_ducky.entity.post.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,4 +27,16 @@ public interface PostRepository extends JpaRepository<Post, Integer> {
             "AND p.content LIKE %:keyWord% " +
             "ORDER BY p.timestamp DESC")
     Page<Post> filterPost(long startTime, long endTime, String keyWord, Pageable pageable);
+
+    @Modifying
+    @Query("DELETE FROM PostLike pl where pl.id.postId = :id")
+    void deleteLikePostById(Integer id);
+
+    @Modifying
+    @Query("DELETE FROM Post p where p.parentPost.id = :id")
+    void deleteCommentPostById(Integer id);
+
+    @Modifying
+    @Query("DELETE FROM Post p where p.id = :id")
+    void deletePostById(Integer id);
 }

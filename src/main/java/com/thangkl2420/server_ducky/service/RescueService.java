@@ -64,30 +64,38 @@ public class RescueService {
 
     public Boolean confirmParticipate(Integer rescueId, Principal connectedUser, double distance){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        UserAction ua = new UserAction();
-        ua.setId(2);
-        user.setUserAction(ua);
-        userRepository.save(user);
-        Participate p = new Participate();
-        p.setId(new ParticipateId(rescueId, user.getId()));
-        p.setDistance(distance);
-        p.setIsFinish(false);
-        participateRepository.save(p);
-        return true;
+        User u = rescueCallRepository.findRescuerById(rescueId).orElse(null);
+        RescueCall rc = rescueCallRepository.findById(rescueId).orElse(null);
+        if(u != null || rc == null || rc.isFinish() == true){
+            return false;
+        } else {
+            UserAction ua = new UserAction();
+            ua.setId(2);
+            user.setUserAction(ua);
+            userRepository.save(user);
+            Participate p = Participate
+                    .builder()
+                    .id(new ParticipateId(rescueId, user.getId()))
+                    .distance(distance)
+                    .isFinish(false)
+                    .build();
+
+            participateRepository.save(p);
+            return true;
+        }
     }
 
-    public User finishWaiting(Integer rescueId, Principal connectedUser) {
-        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+    public User finishWaiting(Integer rescueId) {
         User u = participateRepository.findUserWithMinimumDistance(rescueId).orElse(new User());
-        if(u.getId() != null){
+        if(u.getEmail() != null){
             participateRepository.deleteUserParticipate(rescueId, u.getId());
             participateRepository.finishParticipateUsers(rescueId);
             UserAction ua = new UserAction();
             ua.setId(3);
             u.setUserAction(ua);
-            userRepository.save(u);
+            return userRepository.save(u);
         }
-        return u;
+        return new User();
     }
 
     public User completeRescue(Integer rescueId) {
@@ -95,6 +103,17 @@ public class RescueService {
         participateRepository.finishRescueCall(rescueId);
         participateRepository.updateUserParticipate(rescueId);
         User u = rescueCallRepository.findCreateUserById(rescueId).orElse(null);
+        if(u != null){
+            UserAction ua = new UserAction();
+            ua.setId(1);
+            u.setUserAction(ua);
+            userRepository.save(u);
+        }
+        return u;
+    }
+
+    public User completeRescue2(Integer id){
+        User u = rescueCallRepository.findRescuerById(id).orElse(new User());
         if(u != null){
             UserAction ua = new UserAction();
             ua.setId(1);

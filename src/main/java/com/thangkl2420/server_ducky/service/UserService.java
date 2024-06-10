@@ -106,7 +106,7 @@ public class UserService {
                 .filter(user -> u.getId() != user.getId())
                 .filter(user -> !isNull(user.getLatitude()) && !isNull(user.getLongitude()))
                 .filter(user -> calculateDistance(user.getLatitude(), user.getLongitude(),
-                        u.getLatitude(), u.getLongitude()) < 10)
+                        u.getLatitude(), u.getLongitude()) < 20)
                 .toList();
     }
 
