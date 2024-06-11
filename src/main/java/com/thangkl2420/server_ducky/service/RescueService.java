@@ -104,7 +104,7 @@ public class RescueService {
         participateRepository.updateIsFinishToTrueByRescueCallId(rescueId);
         participateRepository.finishRescueCall(rescueId);
         participateRepository.updateUserParticipate(rescueId);
-        User u = rescueCallRepository.findCreateUserById(rescueId).orElse(null);
+        User u = rescueCallRepository.findCreateUserById(rescueId).orElse(new User());
         if(u.getEmail() != null){
             UserAction ua = new UserAction(1, null, null);
             u.setUserAction(ua);

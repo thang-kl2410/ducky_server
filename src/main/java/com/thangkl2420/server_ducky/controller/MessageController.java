@@ -41,7 +41,6 @@ public class MessageController {
         return message;
     }
 
-
     @GetMapping("/conversation/id")
     public ResponseEntity<List<Message>> getMessagesByIdConversation(
             @Param(value = "id") Integer id, @Param(value = "startTime") long startTime,
