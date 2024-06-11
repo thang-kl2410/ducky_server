@@ -14,9 +14,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.Principal;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -73,23 +75,24 @@ public class PostService {
     public Post updatePost(Post post){
         Post p = repository.findById(post.getId()).orElseThrow(null);
         if(p != null){
-            p.setUser(post.getUser());
-            p.setId(post.getId());
             p.setContent(post.getContent());
-            p.setIsComment(post.getIsComment());
-            p.setParentPost(post.getParentPost());
             p.setChildrenPosts(post.getChildrenPosts());
-            p.setTimestamp(post.getTimestamp());
-            p.setResources(post.getResources());
+            p.setImages(post.getImages());
+            p.setIsComment(0);
             return repository.save(p);
         }
         return null;
     }
 
+    @Transactional
     public boolean deletePost(Integer id){
-        //Xóa resource trước
+//        Post _post = repository.findById(id).orElse(new Post());
         try{
-            repository.deleteById(id);
+//            repository.deleteById(id);
+//            _post.getImages().clear();
+//            repository.save(_post);
+            repository.deleteCommentPostById(id);
+            repository.deletePostById(id);
             return true;
         } catch (Exception e){
             return false;

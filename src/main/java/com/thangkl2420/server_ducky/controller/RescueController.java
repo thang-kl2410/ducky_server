@@ -79,7 +79,7 @@ public class RescueController {
 
     @GetMapping("/finish-rescue/{id}")
     public ResponseEntity<User> finishRescue(@PathVariable(value = "id" ) Integer id, Principal connectedUser){
-        User user = service.finishWaiting(id, connectedUser);
+        User user = service.finishWaiting(id);
         try {
             notificationService.sendFCMFinishRescue(user.getIdDevice(), id, user.getId());
         } catch (FirebaseMessagingException e) {
@@ -91,8 +91,10 @@ public class RescueController {
     @GetMapping("/complete-rescue/{id}")
     public ResponseEntity<Boolean> completeRescue(@PathVariable(value = "id") Integer id){
         User u = service.completeRescue(id);
+        User rescuer = service.completeRescue2(id);
         try {
             notificationService.finishRescueCall(u);
+            notificationService.finishRescueCall(rescuer);
         } catch (FirebaseMessagingException e) {
             throw new RuntimeException(e);
         }
