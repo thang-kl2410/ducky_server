@@ -27,7 +27,6 @@ import static java.util.Objects.isNull;
 public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository repository;
-    private final UserStateRepository userStateRepository;
     private final RescueDetailRepository rescueDetailRepository;
     private final FollowingRepository followingRepository;
 
@@ -56,8 +55,7 @@ public class UserService {
 
     public User updateState(Integer state, Principal connectedUser){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        UserState userState = userStateRepository.findById(state).orElse(null);
-        user.setUserState(userState);
+        user.setUserState(new UserState(state, null, null));
         return repository.save(user);
     }
 
@@ -155,5 +153,11 @@ public class UserService {
 
     public List<User> getWatchers(Integer id){
         return followingRepository.getAllWatcher(id);
+    }
+
+    public User getCurrentUser(Principal connectedUser) {
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        user.setUserState(new UserState(1, null, null));
+        return repository.save(user);
     }
 }

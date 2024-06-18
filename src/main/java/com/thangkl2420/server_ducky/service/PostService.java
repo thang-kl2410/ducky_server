@@ -1,6 +1,7 @@
 package com.thangkl2420.server_ducky.service;
 
 import com.thangkl2420.server_ducky.dto.FilterRequest;
+import com.thangkl2420.server_ducky.dto.post.PostDto;
 import com.thangkl2420.server_ducky.dto.post.PostLikeId;
 import com.thangkl2420.server_ducky.entity.post.Post;
 import com.thangkl2420.server_ducky.entity.post.PostLike;
@@ -27,14 +28,22 @@ public class PostService {
     final private PostLikeRepository postLikeRepository;
     final private FollowingRepository followingRepository;
 
-    public Page<Post> getAll(FilterRequest request){
-        Pageable pageable = PageRequest.of(request.getPageIndex(),request.getPageSize());
-        return repository.filterPost(request.getStartTime(), request.getEndTime(), request.getKeyword(), pageable);
+    public List<PostDto> getAll(FilterRequest request, Principal connectedUser){
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        if(user.getId() == null){
+            return List.of();
+        } else {
+            Pageable pageable = PageRequest.of(request.getPageIndex(),request.getPageSize());
+            Page<Post> data = repository.filterPost(request.getStartTime(), request.getEndTime(), request.getKeyword(), pageable);
+            List<PostDto> dtos = repository.filterPostDto(data.getContent(), user.getId());
+            return dtos;
+        }
     }
 
-    public List<Post> getPostByUser(Integer id, Integer pageIndex, Integer pageSize){
+    public List<PostDto> getPostByUser(Integer id, Integer pageIndex, Integer pageSize, Principal connectedUser){
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
-        return repository.findPostById(id, pageable).getContent();
+        return repository.findPostById(id, user.getId(),pageable).getContent();
     }
 
     public List<Post> getComments(Integer idPost, Integer pageIndex, Integer pageSize){
@@ -91,6 +100,7 @@ public class PostService {
 //            repository.deleteById(id);
 //            _post.getImages().clear();
 //            repository.save(_post);
+            repository.deleteLikePostById(id);
             repository.deleteCommentPostById(id);
             repository.deletePostById(id);
             return true;
@@ -99,12 +109,13 @@ public class PostService {
         }
     }
 
-    public List<Post> getAllPostByIdUser(Integer id, Integer pageIndex, Integer pageSize){
+    public List<PostDto> getAllPostByIdUser(Integer id, Integer pageIndex, Integer pageSize, Principal connectedUser){
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
-        return repository.findPostById(id, pageable).getContent();
+        return repository.findPostById(id, user.getId(),pageable).getContent();
     }
 
-    public List<Post> getFollowersPost(Principal connectedUser, Integer pageIndex, Integer pageSize){
+    public List<PostDto> getFollowersPost(Principal connectedUser, Integer pageIndex, Integer pageSize){
         Pageable pageable = PageRequest.of(pageIndex, pageSize);
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
         return followingRepository.getAllFollowerPost(user.getId(), pageable).getContent();

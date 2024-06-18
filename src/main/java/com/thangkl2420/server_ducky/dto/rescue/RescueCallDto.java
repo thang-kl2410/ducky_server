@@ -9,6 +9,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class RescueCallDto {
     private RescueCall rescueCall;
     private User createUser;

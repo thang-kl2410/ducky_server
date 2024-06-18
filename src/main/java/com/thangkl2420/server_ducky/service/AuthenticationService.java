@@ -4,6 +4,7 @@ import com.thangkl2420.server_ducky.dto.auth.AuthenticationRequest;
 import com.thangkl2420.server_ducky.dto.auth.RegisterRequest;
 import com.thangkl2420.server_ducky.dto.auth.ResetPasswordRequest;
 import com.thangkl2420.server_ducky.entity.auth.AuthenticationResponse;
+import com.thangkl2420.server_ducky.entity.auth.Role;
 import com.thangkl2420.server_ducky.entity.auth.Token;
 import com.thangkl2420.server_ducky.repository.TokenRepository;
 import com.thangkl2420.server_ducky.entity.auth.TokenType;
@@ -21,6 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 
+import static com.thangkl2420.server_ducky.entity.auth.Role.USER;
+
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -36,7 +39,7 @@ public class AuthenticationService {
         .lastname(request.getLastname())
         .email(request.getEmail())
         .password(passwordEncoder.encode(request.getPassword()))
-        .role(request.getRole())
+        .role(USER)
         .build();
     var savedUser = repository.save(user);
     var jwtToken = jwtService.generateToken(user);

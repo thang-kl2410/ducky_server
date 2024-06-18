@@ -11,6 +11,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class RescueCallResponseDto {
     private RescueCall rescueCall;
     private List<User> rescuers;

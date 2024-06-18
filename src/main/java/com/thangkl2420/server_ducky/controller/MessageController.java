@@ -4,6 +4,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.thangkl2420.server_ducky.dto.chat.MessageDto;
 import com.thangkl2420.server_ducky.entity.chat.Conversation;
 import com.thangkl2420.server_ducky.entity.chat.Message;
+import com.thangkl2420.server_ducky.entity.chat.RoomVideoCall;
 import com.thangkl2420.server_ducky.service.ConversationService;
 import com.thangkl2420.server_ducky.service.NotificationService;
 import lombok.RequiredArgsConstructor;
@@ -52,10 +53,29 @@ public class MessageController {
     @PostMapping("/rtc/create/{receiver}")
     public ResponseEntity<String> createRoom(@PathVariable(value = "receiver") Integer receiver,@RequestBody String roomId, Principal connectedUser){
         try {
+            conversationService.createRoom(roomId, receiver, connectedUser);
             notificationService.sendNotificationRtc(receiver, roomId,connectedUser);
         } catch (FirebaseMessagingException e) {
             throw new RuntimeException(e);
         }
         return ResponseEntity.ok(roomId);
+    }
+
+    @GetMapping("/rtc/{id}")
+    public ResponseEntity<Boolean> createRoom(@PathVariable(value = "id") String id){
+        return ResponseEntity.ok(conversationService.checkRoom(id));
+    }
+
+    @DeleteMapping("/rtc/end/{id}")
+    public ResponseEntity<Boolean> endVideoCall(@PathVariable(value = "id") String id){
+        try {
+            RoomVideoCall rvc = conversationService.endVideoCall(id);
+            if(rvc != null){
+                notificationService.sendNotificationEndRtc(rvc);
+            }
+        } catch (FirebaseMessagingException e) {
+            return ResponseEntity.ok(false);
+        }
+        return ResponseEntity.ok(true);
     }
 }

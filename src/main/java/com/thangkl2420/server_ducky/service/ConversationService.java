@@ -6,6 +6,7 @@ import com.thangkl2420.server_ducky.dto.chat.MessageDto;
 import com.thangkl2420.server_ducky.dto.chat.UserConversationId;
 import com.thangkl2420.server_ducky.entity.chat.Conversation;
 import com.thangkl2420.server_ducky.entity.chat.Message;
+import com.thangkl2420.server_ducky.entity.chat.RoomVideoCall;
 import com.thangkl2420.server_ducky.entity.user.User;
 import com.thangkl2420.server_ducky.entity.chat.UserConversation;
 import com.thangkl2420.server_ducky.repository.*;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -28,6 +30,7 @@ public class ConversationService {
     private final UserConversationRepository userConversationRepository;
     private final MessageRepository messageRepository;
     private final NotificationService notificationService;
+    private final RoomVideoCallRepository roomVideoCallRepository;
 
     private final BCryptPasswordEncoder encoder;
 
@@ -105,8 +108,39 @@ public class ConversationService {
         }
     }
 
+    public void createRoom(String id, Integer receiver, Principal connectedUser){
+        var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        Instant now = Instant.now();
+        long milliseconds = now.toEpochMilli();
+        RoomVideoCall rvc = RoomVideoCall
+                .builder()
+                .id(id).isExpiry(true)
+                .timestamp(milliseconds)
+                .creator(user.getId())
+                .receiver(receiver)
+                .build();
+        roomVideoCallRepository.save(rvc);
+    }
+
+    public RoomVideoCall endVideoCall(String id){
+       RoomVideoCall rvc = roomVideoCallRepository.findById(id).orElse(null);
+       if(rvc != null){
+           rvc.setExpiry(false);
+           roomVideoCallRepository.save(rvc);
+       }
+       return rvc;
+    }
+
     String encryptMessage(String message){
         return  encoder.encode(message);
+    }
+
+    public Boolean checkRoom(String id) {
+        RoomVideoCall rvc = roomVideoCallRepository.findById(id).orElse(null);
+        if(rvc != null){
+            return  rvc.isExpiry();
+        }
+        return false;
     }
 //
 //    List<Message> decryptMessage(List<Message> messages){

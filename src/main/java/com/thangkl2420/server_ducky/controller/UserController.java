@@ -31,10 +31,7 @@ public class UserController {
 
     @GetMapping("/current-user")
     public ResponseEntity<User> getCurrentUser(Principal connectedUser) {
-        return ResponseEntity.ok(
-                (User) ((UsernamePasswordAuthenticationToken) connectedUser)
-                        .getPrincipal()
-        );
+        return ResponseEntity.ok(service.getCurrentUser(connectedUser));
     }
 
     @GetMapping("/device-token")

@@ -194,11 +194,11 @@ public class RescueService {
 
     public RescueCallDto getCurrentRescueCallDetail(Principal connectedUser){
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
-        if(user.getUserAction().getId() == 3){
+        if(user.getUserAction().getId() == 3 || user.getUserAction().getId() == 2){
             RescueCall rc = participateRepository.findMyCurrentRescueCall(user.getId()).orElse(new RescueCall());
             User userCreated = rescueCallRepository.findCreateUserById(rc.getId()).orElse(new User());
             return new RescueCallDto(rc, userCreated, user);
-        } else if(user.getUserAction().getId() == 4 || user.getUserAction().getId() == 2){
+        } else if(user.getUserAction().getId() == 4 ){
             RescueCall rc = participateRepository.findMyCurrentRescueCall2(user.getId()).orElse(new RescueCall());
             User rescuer = rescueCallRepository.findRescuerById(rc.getId()).orElse(new User());
             return new RescueCallDto(rc, user, rescuer);

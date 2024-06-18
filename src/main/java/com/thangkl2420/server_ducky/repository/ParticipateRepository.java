@@ -32,6 +32,16 @@ public interface ParticipateRepository extends JpaRepository<Participate, Partic
     @Query("SELECT p.user FROM Participate p WHERE p.distance = (SELECT MIN(p2.distance) FROM Participate p2 WHERE p2.id.rescueCallId = :id)")
     Optional<User> findUserWithMinimumDistance(Integer id);
 
+    @Query("SELECT p.user.idDevice " +
+            "FROM Participate p " +
+            "WHERE p.id.rescueCallId = :id " +
+            "AND p.distance != (SELECT MIN(p2.distance) " +
+            "FROM Participate p2 WHERE p2.id.rescueCallId = :id) " +
+            "AND p.user.idDevice IS NOT NULL " +
+            "AND p.user.idDevice <> ''" +
+            "AND p.user.id != :userId")
+    List<String> findRemainingUserDeviceTokens(Integer id, Integer userId);
+
     @Modifying
     @Transactional
     @Query("DELETE FROM Participate p WHERE p.id.rescueCallId = :id AND p.user.id != :rescuer")

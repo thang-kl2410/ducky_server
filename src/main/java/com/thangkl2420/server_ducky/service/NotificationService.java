@@ -3,6 +3,7 @@ package com.thangkl2420.server_ducky.service;
 import com.google.firebase.messaging.*;
 import com.thangkl2420.server_ducky.dto.FilterRequest;
 import com.thangkl2420.server_ducky.dto.user.UserNotificationId;
+import com.thangkl2420.server_ducky.entity.chat.RoomVideoCall;
 import com.thangkl2420.server_ducky.entity.rescue.RescueCall;
 import com.thangkl2420.server_ducky.entity.user.DuckyNotification;
 import com.thangkl2420.server_ducky.entity.user.User;
@@ -127,14 +128,22 @@ public class NotificationService {
 
     public void sendNotificationRtc(Integer receiver, String room, Principal connectedUser) throws FirebaseMessagingException {
         var user = (User) ((UsernamePasswordAuthenticationToken) connectedUser).getPrincipal();
+        User user2 = userRepository.findById(receiver).orElse(new User());
         String tokenDevice = userRepository.findDeviceToken(receiver).orElseThrow(null);
         if(tokenDevice != null && !tokenDevice.isEmpty()){
             saveDuckyNotification(
                     "Yêu cầu cuộc gọi",
                     "Từ " + user.getFirstname() + " " + user.getLastname(),
-                    "rtc",
+                    "receiver_rtc",
                     room,
                     receiver
+            );
+            saveDuckyNotification(
+                    "Cuộc gọi đến",
+                    "Yêu cầu đến " + user2.getFirstname() + " " + user2.getLastname(),
+                    "creator_rtc",
+                    room,
+                    user.getId()
             );
             Message message = Message.builder()
                     .putData("title", "Yêu cầu cuộc gọi")
@@ -150,6 +159,26 @@ public class NotificationService {
                     .setToken(tokenDevice)
                     .build();
             firebaseMessaging.send(message);
+        }
+    }
+
+    public void sendNotificationEndRtc(RoomVideoCall rvc) throws FirebaseMessagingException {
+        String creator = userRepository.findDeviceToken(rvc.getCreator()).orElseThrow(null);
+        String receiver = userRepository.findDeviceToken(rvc.getReceiver()).orElseThrow(null);
+        if(creator != null && !creator.isEmpty() && receiver!= null && !receiver.isEmpty()){
+            MulticastMessage message = MulticastMessage.builder()
+                    .putData("title", "Thông báo")
+                    .putData("body", "Kết thúc cuộc gọi")
+                    .putData("type", "end_video_call")
+                    .setNotification(
+                            Notification.builder()
+                                    .setTitle("Thông báo")
+                                    .setBody("Kết thúc cuộc gọi")
+                                    .build()
+                    )
+                    .addAllTokens(List.of(creator, receiver))
+                    .build();
+            firebaseMessaging.sendMulticast(message);
         }
     }
 
@@ -175,6 +204,23 @@ public class NotificationService {
                 .setToken(tokenDevice)
                 .build();
         firebaseMessaging.send(message);
+    }
+
+    public void sendFCMFinishRescue2(List<String> tokenDevice, Integer id) throws FirebaseMessagingException {
+        MulticastMessage message = MulticastMessage.builder()
+                .putData("title", "Kết thúc tình huống.")
+                .putData("body", "Nhấn vào để xem chi tiết thông tin.")
+                .putData("type", "finish")
+                .putData("id", String.valueOf(id))
+                .setNotification(
+                        Notification.builder()
+                                .setTitle("Kết thúc tình huống.")
+                                .setBody("Nhấn vào để xem chi tiết thông tin.")
+                                .build()
+                )
+                .addAllTokens(tokenDevice)
+                .build();
+        firebaseMessaging.sendMulticast(message);
     }
 
     public void finishRescueCall(User u) throws FirebaseMessagingException {

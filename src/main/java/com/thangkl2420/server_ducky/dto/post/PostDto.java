@@ -1,5 +1,6 @@
 package com.thangkl2420.server_ducky.dto.post;
 
+import com.thangkl2420.server_ducky.entity.post.Post;
 import lombok.*;
 
 @Data
@@ -7,8 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class NotificationRequest {
-    private String token;
-    private String body;
-    private String title;
+public class PostDto {
+    private Post post;
+    private Boolean haveLike;
 }

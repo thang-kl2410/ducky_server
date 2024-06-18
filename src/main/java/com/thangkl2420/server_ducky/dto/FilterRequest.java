@@ -1,16 +1,14 @@
 package com.thangkl2420.server_ducky.dto;
 
 import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Embeddable
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@EqualsAndHashCode
 public class FilterRequest {
     @Builder.Default
     private String keyword = "";
